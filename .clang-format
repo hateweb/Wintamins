@@ -1,0 +1,12 @@
+﻿BasedOnStyle: Chromium
+BreakBeforeBraces: Allman
+BreakStringLiterals: false
+SortIncludes: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+AlignAfterOpenBracket: DontAlign
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 75
