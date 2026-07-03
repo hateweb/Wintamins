@@ -49,3 +49,4 @@ extern uint8_t action_m5;
 
 void ini_parse();
 void ini_write();
+void license_write();

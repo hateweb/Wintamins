@@ -25,6 +25,9 @@
 #define IDD_GENERAL 102
 #define IDD_MOUSE 103
 #define IDD_ABOUT 104
+
+#define IDR_LICENSE 105
+
 #define IDB_APPLY 201
 #define IDB_ELEVATE 202
 

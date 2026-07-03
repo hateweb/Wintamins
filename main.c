@@ -92,10 +92,8 @@ int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
 
 void hello(HWND hwnd)
 {
-	if ((!hide_titlebars && !no_thickframe) ||
-		tracked_count >= MAX_TRACKED_WINDOWS || !hwnd ||
-		!IsWindow(hwnd) || !IsWindowVisible(hwnd) ||
-		GetAncestor(hwnd, GA_ROOT) != hwnd)
+	if (tracked_count >= MAX_TRACKED_WINDOWS || !hwnd || !IsWindow(hwnd) ||
+		!IsWindowVisible(hwnd) || GetAncestor(hwnd, GA_ROOT) != hwnd)
 		return;
 
 	// causes run dialog to be ignored
@@ -1241,6 +1239,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	freopen("CONOUT$", "w", stderr);
 
 	ini_parse();
+	license_write();
 
 	autostart();
 

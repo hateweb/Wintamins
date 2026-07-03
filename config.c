@@ -15,12 +15,14 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
+#include <libloaderapi.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <windows.h>
+#include "resources.h"
 #include "config.h"
 
 #define MAX_LINE_LEN 256
@@ -192,5 +194,32 @@ void ini_write()
 	SERIALIZE_INT(action_rmb);
 	SERIALIZE_INT(action_m4);
 	SERIALIZE_INT(action_m5);
+	fclose(file);
+}
+
+void license_write()
+{
+	FILE* file_chk = fopen("LICENSE", "r");
+	if (file_chk != NULL)
+		return;
+
+	HRSRC res = FindResource(
+		NULL, MAKEINTRESOURCE(IDR_LICENSE), "LICENSE_DATA");
+	if (!res)
+		return;
+
+	HGLOBAL data = LoadResource(NULL, res);
+	if (!data)
+		return;
+
+	const char* license_text = LockResource(data);
+	DWORD license_sz = SizeofResource(NULL, res);
+
+	if (!license_text || license_sz == 0)
+		return;
+
+	FILE* file = fopen("LICENSE", "wb");
+	fprintf(file, "%s", license_text);
+
 	fclose(file);
 }
