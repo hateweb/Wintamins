@@ -2,7 +2,7 @@ CC = clang
 RC = windres
 
 # CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP
-CFLAGS = -O2 -mwindows -flto -MMD -MP
+CFLAGS = -Wl,-s -O3 -mwindows -flto -MMD -MP
 LDLIBS = -lcomctl32 -ldwmapi
 
 TARGET = Wintamins.exe
