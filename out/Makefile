@@ -1,8 +1,20 @@
 CC = clang
 RC = windres
 
-# CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP
-CFLAGS = -Wl,-s -O3 -mwindows -flto -MMD -MP
+ARCH ?= 64
+
+ifeq ($(ARCH),32)
+    ARCH_FLAGS = -m32
+    RCFLAGS = -F pe-i386
+    BUILD_DIR = build32
+else
+    ARCH_FLAGS = -m64
+    RCFLAGS = -F pe-x86-64
+    BUILD_DIR = build64
+endif
+
+# CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
+CFLAGS = -Wl,-s -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
 LDLIBS = -lcomctl32 -ldwmapi
 
 TARGET = Wintamins.exe
@@ -11,12 +23,12 @@ SRC_DIR = ..
 BUILD_DIR = .
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
-HDRS = $(wildcard *.d)
+HDRS = $(wildcard $(BUILD_DIR)*.d)
 RSRC = $(SRC_DIR)/resources.rc
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 RC_OBJ = $(patsubst $(SRC_DIR)/%.rc, $(BUILD_DIR)/%.res.o, $(RSRC))
 
-.PHONY: all kill compiledb
+.PHONY: all compiledb
 
 all: $(TARGET)
 
@@ -27,9 +39,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.res.o: $(SRC_DIR)/%.rc
-	$(RC) -i $< -o $@
+	$(RC) $(RCFLAGS) -i $< -o $@
 
 compiledb:
 	compiledb -o $(SRC_DIR)/compile_commands.json -n make
+	
+clean:
+	rm -rf *.d *.o *.exe
 
 -include $(HDRS)
