@@ -1,7 +1,7 @@
 CC = clang
 RC = windres
 
-# CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto
+# CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP
 CFLAGS = -O2 -mwindows -flto -MMD -MP
 LDLIBS = -lcomctl32 -ldwmapi
 

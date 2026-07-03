@@ -59,13 +59,22 @@ nvim Makefile
   1  CC = clang
   2  RC = windres
 ```
-**3.** Build!
+**3.** Uncomment the debug flags, if needed
+```
+  4  CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP
+  5  # CFLAGS = -O2 -mwindows -flto -MMD -MP
+```
+**4.** Build!
 ```
 make
 ```
+**5.** Generate `compile_commands.json` for your LSP (optional)
+```
+make compiledb
+```
 
 # Roadmap
-Wintamins is a new project. The project is in active development stage, and will be for quite some time.
+Wintamins is a new project, is in active development stage, and will be for quite some time.
 
 ### The following goals are prioritized.
 - Toggle the program without exiting it.
