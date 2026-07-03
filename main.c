@@ -793,7 +793,7 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 					// Note: SysLink controls operate internally only in
 					// Unicode. The szUrl member is always a wide string
 					// (WCHAR), so ShellExecuteW must be used to open it.
-					ShellExecuteW(NULL, L"open", L"LICENSE.md", NULL,
+					ShellExecuteW(NULL, L"open", L"LICENSE", NULL,
 						NULL, SW_SHOWNORMAL);
 					return TRUE;
 				}
