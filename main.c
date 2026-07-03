@@ -734,6 +734,14 @@ void switch_tab(int index)
 	ShowWindow(tabs[current_tab], SW_SHOW);
 }
 
+BOOL CALLBACK hide_focus(HWND hwnd, LPARAM lparam)
+{
+	UNREFERENCED_PARAMETER(lparam)
+	SendMessage(
+		hwnd, WM_UPDATEUISTATE, MAKEWPARAM(UIS_SET, UISF_HIDEFOCUS), 0);
+	return TRUE;
+}
+
 static HBRUSH backbrush = NULL;
 INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 	UINT umsg,
@@ -746,8 +754,7 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 		{
 			backbrush = CreateSolidBrush(RGB(249, 249, 249));
 
-			SendMessage(hwnd, WM_CHANGEUISTATE,
-				MAKELONG(UIS_SET, UISF_HIDEFOCUS), 0);
+			EnumChildWindows(hwnd, hide_focus, lparam);
 			HWND autostartadmin = GetDlgItem(hwnd, IDC_AUTOSTARTADMIN);
 			EnableWindow(autostartadmin,
 				IsDlgButtonChecked(tabs[0], IDC_AUTOSTART) == BST_CHECKED);
@@ -798,16 +805,6 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 					return TRUE;
 				}
 			}
-			break;
-		}
-
-		case WM_CHANGEUISTATE:
-		case WM_UPDATEUISTATE:
-		{
-			if (LOWORD(wparam) == UIS_CLEAR &&
-				(HIWORD(wparam) & UISF_HIDEFOCUS))
-				wparam = MAKEWPARAM(
-					LOWORD(wparam), HIWORD(wparam) & ~UISF_HIDEFOCUS);
 			break;
 		}
 
@@ -988,7 +985,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 	{
 		case WM_INITDIALOG:
 		{
-			SendMessage(hwnd, WM_CHANGEUISTATE, MAKELONG(UIS_SET, UISF_HIDEFOCUS), 0);
+			EnumChildWindows(hwnd, hide_focus, lparam);
 			HINSTANCE hinstance = GetModuleHandle(NULL);
 			setup_tray(hwnd, false);
 
@@ -1069,15 +1066,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 			return TRUE;
 		}
 
-		case WM_CHANGEUISTATE:
-		case WM_UPDATEUISTATE:
-		{
-			if (LOWORD(wparam) == UIS_CLEAR &&
-				(HIWORD(wparam) & UISF_HIDEFOCUS))
-				wparam = MAKEWPARAM(
-					LOWORD(wparam), HIWORD(wparam) & ~UISF_HIDEFOCUS);
-			break;
-		}
 		case WM_SETTINGCHANGE:
 			if (lparam &&
 				strcmp((const char*)lparam, "ImmersiveColorSet") == 0)
