@@ -965,6 +965,10 @@ void revert_config()
 {
 	CheckDlgButton(tabs[0], IDC_FOCUSWINDOW,
 		focus_window_on_drag ? BST_CHECKED : BST_UNCHECKED);
+	CheckDlgButton(tabs[0], IDC_CLOSESTCORNER,
+		closest_corner_on_resize ? BST_CHECKED : BST_UNCHECKED);
+	CheckDlgButton(tabs[0], IDC_SNAPCURSOR,
+		snap_cursor_on_resize ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(tabs[0], IDC_HIDEBARS,
 		hide_titlebars ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(tabs[0], IDC_NOTHICKFRAME,
@@ -1065,7 +1069,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 			tie.pszText = (LPSTR) "Mouse";
 			TabCtrl_InsertItem(tab_wnd, 1, &tie);
 			tie.pszText = (LPSTR) "About";
-			TabCtrl_InsertItem(tab_wnd, 3, &tie);
+			TabCtrl_InsertItem(tab_wnd, 2, &tie);
 
 			tabs[0] = CreateDialog(hinstance, MAKEINTRESOURCE(IDD_GENERAL),
 				hwnd, child_dlg_proc);
