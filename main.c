@@ -1041,7 +1041,7 @@ void setup_tray(HWND hwnd, bool update)
 	tray_data.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	tray_data.uCallbackMessage = WM_TRAYICON;
 	tray_data.hIcon = in_light_mode() ? icon_light : icon_dark;
-	strcpy_s(tray_data.szTip, sizeof(tray_data.szTip), name);
+	snprintf(tray_data.szTip, sizeof(tray_data.szTip), "%s", name);
 
 	Shell_NotifyIconA(update ? NIM_MODIFY : NIM_ADD, &tray_data);
 }
