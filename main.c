@@ -39,9 +39,12 @@
 
 #define WM_TRAYICON (WM_APP + 1)
 
-#define IN_NONE 0
-#define IN_DRAG 1
-#define IN_RESIZE 2
+enum
+{
+	IN_NONE,
+	IN_DRAG,
+	IN_RESIZE
+};
 
 typedef struct
 {
@@ -124,7 +127,7 @@ bool compare(HWND hwnd)
 	GetClassName(hwnd, class, sizeof(class));
 
 	for (int i = 0; i < wl_size; i++)
-		if (strcmp(whitelist[i], class) == 0)
+		if (!strcmp(whitelist[i], class))
 			return true;
 
 	return false;
@@ -352,7 +355,7 @@ void autostart()
 				key, name, NULL, NULL, (LPBYTE)buffer, &buffer_sz);
 
 		if (query_status == ERROR_SUCCESS)
-			if (strcmp(path, buffer) == 0)
+			if (!strcmp(path, buffer))
 				return;
 	}
 
@@ -1143,7 +1146,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 
 		case WM_SETTINGCHANGE:
 			if (lparam &&
-				strcmp((const char*)lparam, "ImmersiveColorSet") == 0)
+				!strcmp((const char*)lparam, "ImmersiveColorSet"))
 			{
 				setup_tray(hwnd, true);
 				return TRUE;
@@ -1265,7 +1268,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	UNREFERENCED_PARAMETER(ncmdshow);
 
 	if (lpcmdline && strlen(lpcmdline) > 0 &&
-		strcmp(lpcmdline, "--elevated") == 0)
+		!strcmp(lpcmdline, "--elevated"))
 	{
 		elevate();
 		return 0;
