@@ -75,7 +75,7 @@ bool config_created = false;
 // ...what?
 
 const int modkeys[] = {0x0, VK_LWIN, VK_RWIN, VK_LMENU, VK_RMENU};
-uint8_t modifier_key = 1;
+uint8_t modifier_key = 0;
 uint8_t modifier_key2 = 0;
 bool focus_window_on_drag = true;
 bool closest_corner_on_resize = true;
