@@ -26,9 +26,9 @@
 ## Overview
 | Feature | Default hotkey | Note |
 | --- | --- | --- |
-| Drag | `Mod + Left Click` | Moves the window.<br>(has an option to focus a window automatically) |
-| Resize | `Mod + Right Click` | Grabs one of the corners to resize.<br>(has options to grab the closest window corner, or to snap the cursor to the corner). |
-| Toggle maximize | `Mod + Middle Click` | Toggles the window's maximize state. |
+| Drag | `Mod` + `Left Click` | Moves the window.<br>(has an option to focus a window automatically) |
+| Resize | `Mod` + `Right Click` | Grabs one of the corners to resize.<br>(has options to grab the closest window corner, or to snap the cursor to the corner). |
+| Toggle maximize | `Mod` + `Middle Click` | Toggles the window's maximize state. |
 | Minimize | Unbound | Minimizes the window. |
 | Send to bottom | Unbound | Sends the window under all the other windows. |
 
