@@ -15,20 +15,25 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
+
+#define OEMRESOURCE
+#include <windows.h>
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
 #include <handleapi.h>
 #include <libloaderapi.h>
 #include <minwindef.h>
 #include <processenv.h>
 #include <processthreadsapi.h>
 #include <securitybaseapi.h>
-#include <stdio.h>
-#include <string.h>
-#include <windows.h>
 #include <commctrl.h>
-#include <stdbool.h>
 #include <wingdi.h>
 #include <winnt.h>
 #include <winreg.h>
+
 #include "resources.h"
 #include "config.h"
 
@@ -65,6 +70,17 @@ enum
 
 HICON icon_dark;
 HICON icon_light;
+
+HCURSOR cursor_drag;
+HCURSOR cursor_resize_tl_br;
+HCURSOR cursor_resize_tr_bl;
+
+static const DWORD cursors[] = {
+    OCR_NORMAL, OCR_IBEAM, OCR_WAIT, OCR_CROSS, 
+    OCR_UP, OCR_SIZEALL, OCR_SIZENS, OCR_SIZEWE, OCR_HAND
+};
+static const int cursor_amt = sizeof(cursors) / sizeof(cursors[0]);
+
 static HFONT title_font;
 
 NOTIFYICONDATA tray_data;
@@ -415,6 +431,16 @@ bool get_unmax_bounds(HWND hwnd, RECT* rect_out)
 	return true;
 }
 
+void set_cursor(HCURSOR* cur)
+{
+	for (int i = 0; i < cursor_amt; i++)
+	{
+		HCURSOR cur_copy = CopyCursor(*cur);
+		if (cur_copy)
+			SetSystemCursor(cur_copy, cursors[i]);
+	}
+}
+
 void click_logic(int option)
 {
 	if (option == ACTION_DRAG)
@@ -422,10 +448,13 @@ void click_logic(int option)
 		state = IN_DRAG;
 		if (IsZoomed(target_wnd))
 			was_maximized = true;
+
+		set_cursor(&cursor_drag);
 	}
 	else if (option == ACTION_RESIZE)
 	{
 		int dir = CORNER_BOTTOMRIGHT;
+		HCURSOR* cur = &cursor_resize_tl_br;
 		if (closest_corner_on_resize)
 		{
 			double d_tl = (double)(mouse_start.x - window_start.left) *
@@ -455,16 +484,19 @@ void click_logic(int option)
 			{
 				closest = d_tr;
 				dir = CORNER_TOPRIGHT;
+				cur = &cursor_resize_tr_bl;
 			}
 			if (d_bl < closest)
 			{
 				closest = d_bl;
 				dir = CORNER_BOTTOMLEFT;
+				cur = &cursor_resize_tr_bl;
 			}
 			if (d_br < closest)
 			{
 				closest = d_br;
 				dir = CORNER_BOTTOMRIGHT;
+				cur = &cursor_resize_tl_br;
 			}
 		}
 
@@ -483,6 +515,7 @@ void click_logic(int option)
 		}
 
 		PostMessage(target_wnd, WM_SYSCOMMAND, SC_SIZE + dir, 0);
+		set_cursor(cur);
 	}
 	else if (option == ACTION_MAXIMIZE)
 		ShowWindow(
@@ -510,6 +543,8 @@ void release_logic(int option, MSLLHOOKSTRUCT* mouse_struct)
 	state = IN_NONE;
 	was_maximized = false;
 	target_wnd = NULL;
+
+	SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
 }
 
 bool process_clicks(WPARAM* p_wparam, MSLLHOOKSTRUCT* mouse_struct)
@@ -542,8 +577,19 @@ bool process_clicks(WPARAM* p_wparam, MSLLHOOKSTRUCT* mouse_struct)
 	GetWindowRect(target_wnd, &window_start);
 
 	// this is so bad...
-	if (wparam == WM_LBUTTONDOWN)
+	if (wparam == WM_LBUTTONDOWN || wparam == WM_LBUTTONDBLCLK)
+	{
+		// ReleaseCapture();
+		//
+		// // Get the exact screen coordinates where this mouse message
+		// // occurred
+		// DWORD dwPos = GetMessagePos();
+		//
+		// // Pass the actual coordinates instead of 0
+		// SendMessage(target_wnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+		// SendMessage(target_wnd, WM_NCLBUTTONUP, HTCAPTION, 0);
 		click_logic(action_lmb);
+	}
 	else if (wparam == WM_MBUTTONDOWN)
 		click_logic(action_mmb);
 	else if (wparam == WM_RBUTTONDOWN)
@@ -1269,6 +1315,10 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		(HICON)LoadImage(hinstance, MAKEINTRESOURCE(IDI_TRAYLIGHT),
 			IMAGE_ICON, GetSystemMetrics(SM_CXSMICON),
 			GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR | LR_SHARED);
+
+	cursor_drag = LoadCursor(NULL, IDC_SIZEALL);
+	cursor_resize_tl_br = LoadCursor(NULL, IDC_SIZENWSE);
+	cursor_resize_tr_bl = LoadCursor(NULL, IDC_SIZENESW);
 
 	WNDCLASS wc = {0};
 	wc.hIcon = icon_light;
