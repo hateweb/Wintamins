@@ -1,0 +1,31 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build-win32:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            mingw-w64-ucrt-x86_64-gcc
+            make
+
+      - name: Build x86
+        run: make ARCH=32
+        working-directory: ./out
+
+      - name: Build x64
+        run: make ARCH=64
+        working-directory: ./out
