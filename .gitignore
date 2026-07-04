@@ -1,6 +1,3 @@
 .cache/
 out/*.o
-out/*.d
-out/*.exe
-out/*.ini
 compile_commands.json
