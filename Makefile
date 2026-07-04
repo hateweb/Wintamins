@@ -20,12 +20,6 @@ endif
 CFLAGS = -Wl,-s -static -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
 LDLIBS = -lcomctl32 -ldwmapi
 
-ifeq ($(findstring cmd.exe,$(SHELL)),cmd.exe)
-    MKDIR = if not exist "$(subst /,\,$(BUILD_DIR))" mkdir "$(subst /,\,$(BUILD_DIR))"
-else
-    MKDIR = mkdir -p $(BUILD_DIR)
-endif
-
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 HDRS = $(wildcard $(BUILD_DIR)/*.d)
 RSRC = $(SRC_DIR)/resources.rc
@@ -37,21 +31,21 @@ RC_OBJ = $(patsubst $(SRC_DIR)/%.rc, $(BUILD_DIR)/%.res.o, $(RSRC))
 all: $(BUILD_DIR) $(TARGET)
 
 $(TARGET): $(OBJS) $(RC_OBJ)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(RC_OBJ) $(LDLIBS)
+	$(CC) $(CFLAGS) -o "$@" $(OBJS) $(RC_OBJ) $(LDLIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o "$@"
 
 $(BUILD_DIR)/%.res.o: $(SRC_DIR)/%.rc
-	$(RC) $(RCFLAGS) -i $< -o $@
+	$(RC) $(RCFLAGS) -i $< -o "$@"
 
 $(BUILD_DIR):
-	$(call MKDIR)
+	mkdir -p "$(BUILD_DIR)"
 
 compiledb:
-	compiledb -o $(SRC_DIR)/compile_commands.json -n make
+	compiledb -o "$(SRC_DIR)/compile_commands.json" -n make
 	
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf "$(BUILD_DIR)"
 
 -include $(HDRS)
