@@ -1,4 +1,4 @@
-name: Build Win32 C Program (32-bit & 64-bit)
+name: Build Win32 C Program (Matrix Build)
 
 on:
   push:
@@ -9,6 +9,20 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW32
+            arch: '32'
+            env_prefix: mingw-w64-i686
+          - msystem: UCRT64
+            arch: '64'
+            env_prefix: mingw-w64-ucrt-x86_64
+
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
     - name: Checkout repository
@@ -17,30 +31,19 @@ jobs:
     - name: Set up MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: UCRT64
+        msystem: ${{ matrix.msystem }}
         update: true
-        # Install make, 64-bit UCRT compiler, and 32-bit compiler
         install: >-
           make
-          mingw-w64-ucrt-x86_64-gcc
-          mingw-w64-i686-gcc
+          ${{ matrix.env_prefix }}-gcc
 
-    - name: Compile 32-bit and 64-bit
-      shell: msys2 {0}
+    - name: Build
       run: |
-        # Append the 32-bit MinGW binary path.
-        # This makes the 32-bit compiler available via 'i686-w64-mingw32-gcc'
-        # without overriding the default 64-bit UCRT 'gcc'.
-        export PATH="$PATH:/mingw32/bin"
-
-        # Build 32-bit version
-        make ARCH=32
-
-        # Build 64-bit version
-        make ARCH=64
+        mkdir -p out
+        make ARCH=${{ matrix.arch }}
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: win32-builds
+        name: win32-build-${{ matrix.arch }}
         path: out/
