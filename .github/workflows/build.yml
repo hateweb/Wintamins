@@ -1,10 +1,10 @@
-name: Build Win32 C Program (Matrix Build)
+name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -31,19 +31,19 @@ jobs:
     - name: Set up MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{ matrix.msystem }}
+        msystem: ${{matrix.msystem}}
         update: true
         install: >-
           make
-          ${{ matrix.env_prefix }}-gcc
+          ${{matrix.env_prefix}}-gcc
 
     - name: Build
       run: |
         mkdir -p out
-        make ARCH=${{ matrix.arch }}
+        make ARCH=${{matrix.arch}}
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: win32-build-${{ matrix.arch }}
-        path: out/
+        name: win32-build-${{matrix.arch}}
+        path: out/Wintamins${{matrix.arch}}.exe
