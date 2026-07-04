@@ -117,7 +117,9 @@ HHOOK hk_mouse;
 
 const char* whitelist[] = {"Progman", "WorkerW", "Shell_TrayWnd",
 	"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
-	"EdgeUiInputWndClass", "NotifyIconOverflowWindow"};
+	"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
+	"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
+	"XamlExplorerHostIslandWindow"};
 
 int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
 
