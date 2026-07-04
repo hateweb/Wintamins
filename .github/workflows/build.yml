@@ -28,22 +28,23 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up MSYS2
+    - name: Set up dependencies
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{matrix.msystem}}
+        msystem: ${{ matrix.msystem }}
         update: true
+        cache: true
         install: >-
           make
-          ${{matrix.env_prefix}}-gcc
+          ${{ matrix.env_prefix }}-gcc
 
     - name: Build
       run: |
         mkdir -p out
         make ARCH=${{matrix.arch}}
 
-    - name: Upload Build Artifacts
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: win32-build-${{matrix.arch}}
-        path: out/Wintamins${{matrix.arch}}.exe
+        name: win32-build-${{ matrix.arch }}
+        path: ${{ github.workspace }}/out/Wintamins${{ matrix.arch }}.exe
