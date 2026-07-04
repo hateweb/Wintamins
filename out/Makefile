@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 RC = windres
 
 ARCH ?= 64
@@ -7,17 +7,18 @@ ifeq ($(ARCH),32)
     ARCH_FLAGS = -m32
     RCFLAGS = -F pe-i386
     BUILD_DIR = build32
+	TARGET = Wintamins32.exe
 else
     ARCH_FLAGS = -m64
     RCFLAGS = -F pe-x86-64
     BUILD_DIR = build64
+	TARGET = Wintamins64.exe
 endif
 
 # CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
 CFLAGS = -Wl,-s -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
 LDLIBS = -lcomctl32 -ldwmapi
 
-TARGET = Wintamins.exe
 
 SRC_DIR = ..
 BUILD_DIR = .
