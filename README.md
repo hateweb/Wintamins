@@ -33,7 +33,7 @@
 | Send to bottom | Unbound | Sends the window under all the other windows. |
 
 # Installing
-[Download](https://github.com/nickdiego/compiledb/releases) and run. The config file is created where the program lives.
+[Download](https://github.com/hateweb/Wintamins/releases) and run. The config file is created where the program lives.
 
 # Configuring
 Settings menu can be accessed by right-clicking the tray icon and choosing **Options**. Alternatively, you could edit the `Wintamins.ini` file next to the executable. However, it's not very intuitive **yet**.
