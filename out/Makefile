@@ -15,10 +15,9 @@ else
 	TARGET = Wintamins64.exe
 endif
 
-# CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
-CFLAGS = -Wl,-s -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
+# CFLAGS = -Wall -Wextra -g -Og -mwindows -flto -MMD -MP $(ARCH_FLAGS)
+CFLAGS = -Wl,-s -static -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
 LDLIBS = -lcomctl32 -ldwmapi
-
 
 SRC_DIR = ..
 BUILD_DIR = .
