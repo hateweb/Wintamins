@@ -464,12 +464,12 @@ void set_cursor(HCURSOR* cur)
 	}
 }
 
-void click_logic(int option)
+void click_logic(WINDOWPLACEMENT* wp, int option)
 {
 	if (option == ACTION_DRAG)
 	{
 		state = IN_DRAG;
-		if (IsZoomed(target_wnd))
+		if (wp->showCmd == SW_SHOWMAXIMIZED)
 			was_maximized = true;
 
 		set_cursor(&cursor_drag);
@@ -542,7 +542,7 @@ void click_logic(int option)
 	}
 	else if (option == ACTION_MAXIMIZE)
 		ShowWindow(
-			target_wnd, IsZoomed(target_wnd) ? SW_RESTORE : SW_MAXIMIZE);
+			target_wnd, wp->showCmd == SW_SHOWMAXIMIZED ? SW_RESTORE : SW_MAXIMIZE);
 
 	else if (option == ACTION_MINIMIZE)
 		ShowWindow(target_wnd, SW_MINIMIZE);
@@ -611,19 +611,19 @@ bool process_clicks(WPARAM* p_wparam, MSLLHOOKSTRUCT* mouse_struct)
 		// // Pass the actual coordinates instead of 0
 		// SendMessage(target_wnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		// SendMessage(target_wnd, WM_NCLBUTTONUP, HTCAPTION, 0);
-		click_logic(action_lmb);
+		click_logic(&wp, action_lmb);
 	}
 	else if (wparam == WM_MBUTTONDOWN)
-		click_logic(action_mmb);
+		click_logic(&wp, action_mmb);
 	else if (wparam == WM_RBUTTONDOWN)
-		click_logic(action_rmb);
+		click_logic(&wp, action_rmb);
 	else if (wparam == WM_XBUTTONDOWN)
 	{
 		WORD xbutton = HIWORD(mouse_struct->mouseData);
 		if (xbutton == XBUTTON1)
-			click_logic(action_m4);
+			click_logic(&wp, action_m4);
 		else if (xbutton == XBUTTON2)
-			click_logic(action_m5);
+			click_logic(&wp, action_m5);
 	}
 	else if (wparam == WM_MOUSEWHEEL)
 	{
