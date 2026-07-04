@@ -1,31 +1,50 @@
 name: Build
-on: [push, pull_request]
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
-  build-win32:
+  build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW32
+            arch: '32'
+            env_prefix: mingw-w64-i686
+          - msystem: UCRT64
+            arch: '64'
+            env_prefix: mingw-w64-ucrt-x86_64
+
     defaults:
       run:
         shell: msys2 {0}
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >-
-            git
-            mingw-w64-ucrt-x86_64-gcc
-            make
+    - name: Set up dependencies
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: true
+        cache: true
+        install: >-
+          make
+          ${{ matrix.env_prefix }}-gcc
 
-      - name: Build x86
-        run: make ARCH=32
-        working-directory: ./out
+    - name: Build
+      run: |
+        mkdir -p out
+        make ARCH=${{matrix.arch}}
 
-      - name: Build x64
-        run: make ARCH=64
-        working-directory: ./out
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: win32-build-${{ matrix.arch }}
+        path: ${{ github.workspace }}/out/Wintamins${{ matrix.arch }}.exe
