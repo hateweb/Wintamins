@@ -1,31 +1,46 @@
-name: Build
-on: [push, pull_request]
+name: Build Win32 C Program (32-bit & 64-bit)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build-win32:
+  build:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >-
-            git
-            mingw-w64-ucrt-x86_64-gcc
-            make
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        # Install make, 64-bit UCRT compiler, and 32-bit compiler
+        install: >-
+          make
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-i686-gcc
 
-      - name: Build x86
-        run: make ARCH=32
-        working-directory: ./out
+    - name: Compile 32-bit and 64-bit
+      shell: msys2 {0}
+      run: |
+        # Append the 32-bit MinGW binary path.
+        # This makes the 32-bit compiler available via 'i686-w64-mingw32-gcc'
+        # without overriding the default 64-bit UCRT 'gcc'.
+        export PATH="$PATH:/mingw32/bin"
 
-      - name: Build x64
-        run: make ARCH=64
-        working-directory: ./out
+        # Build 32-bit version
+        make ARCH=32
+
+        # Build 64-bit version
+        make ARCH=64
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: win32-builds
+        path: out/
