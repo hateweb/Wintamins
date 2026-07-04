@@ -1211,7 +1211,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 					if (HIWORD(wparam) == BN_CLICKED)
 					{
 						apply_config();
-						switch_tab(hwnd, 0);
 						return TRUE;
 					}
 				}
