@@ -106,6 +106,18 @@ const char* whitelist[] = {"Progman", "WorkerW", "Shell_TrayWnd",
 
 int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
 
+bool compare(HWND hwnd)
+{
+	char class[256];
+	GetClassName(hwnd, class, sizeof(class));
+
+	for (int i = 0; i < wl_size; i++)
+		if (strcmp(whitelist[i], class) == 0)
+			return true;
+
+	return false;
+}
+
 void hello(HWND hwnd)
 {
 	if (tracked_count >= MAX_TRACKED_WINDOWS || !hwnd || !IsWindow(hwnd) ||
@@ -130,9 +142,8 @@ void hello(HWND hwnd)
 	char class[256];
 	GetClassName(hwnd, class, sizeof(class));
 
-	for (int i = 0; i < wl_size; i++)
-		if (strcmp(whitelist[i], class) == 0)
-			return;
+	if (compare(hwnd))
+		return;
 
 	LONG_PTR style_override = original_style;
 
@@ -559,7 +570,7 @@ bool process_clicks(WPARAM* p_wparam, MSLLHOOKSTRUCT* mouse_struct)
 	HWND root_hwnd = GetAncestor(hwnd, GA_ROOT);
 	HWND desktop_hwnd = GetDesktopWindow();
 
-	if (!root_hwnd || root_hwnd == desktop_hwnd)
+	if (!root_hwnd || root_hwnd == desktop_hwnd || compare(root_hwnd))
 		return false;
 
 	WINDOWPLACEMENT wp;
