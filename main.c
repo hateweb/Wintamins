@@ -151,7 +151,7 @@ void hello(HWND hwnd)
 	if (original_style & WS_CHILD)
 		return;
 
-	if (GetWindowTextLength(hwnd) == 0)
+	if (!GetWindowTextLength(hwnd))
 		return;
 
 	char class[256];
@@ -282,7 +282,7 @@ void winkey()
 bool elevate()
 {
 	char path[MAX_PATH];
-	if (GetModuleFileNameA(NULL, path, MAX_PATH) == 0)
+	if (!GetModuleFileNameA(NULL, path, MAX_PATH))
 		return false;
 
 	bool elevated = false;
@@ -340,7 +340,7 @@ void autostart()
 
 	char path[MAX_PATH];
 
-	if (GetModuleFileNameA(NULL, path, MAX_PATH) == 0)
+	if (!GetModuleFileNameA(NULL, path, MAX_PATH))
 		return;
 
 	if (autostart_as_admin)
@@ -1033,7 +1033,7 @@ bool in_light_mode()
 			(LPBYTE)&lightmode, &lightmode_sz);
 		RegCloseKey(key);
 	}
-	return lightmode == 0;
+	return !lightmode;
 }
 
 void setup_tray(HWND hwnd, bool update)
@@ -1055,10 +1055,10 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 	LPARAM lparam)
 {
 	static UINT shellrestartmsg = 0;
-	if (shellrestartmsg == 0)
+	if (!shellrestartmsg)
 		shellrestartmsg = RegisterWindowMessageW(L"TaskbarCreated");
 
-	if (umsg == shellrestartmsg && shellrestartmsg != 0)
+	if (umsg == shellrestartmsg && shellrestartmsg)
 	{
 		setup_tray(hwnd, true);
 		return TRUE;
@@ -1164,6 +1164,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd,
 			}
 			break;
 		}
+
 		case WM_TRAYICON:
 		{
 			switch (lparam)
