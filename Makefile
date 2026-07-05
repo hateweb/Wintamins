@@ -1,4 +1,6 @@
-CC = clang
+CC = $(shell which cc 2>/dev/null)
+
+# CC = clang
 RC = windres
 
 ARCH ?= 64
