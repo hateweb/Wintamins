@@ -204,6 +204,8 @@ void license_write()
 	if (file_chk != NULL)
 		return;
 
+	fclose(file_chk);
+
 	HRSRC res =
 		FindResource(NULL, MAKEINTRESOURCE(IDR_LICENSE), "LICENSE_DATA");
 	if (!res)
