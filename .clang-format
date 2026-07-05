@@ -9,4 +9,4 @@ AlignAfterOpenBracket: DontAlign
 UseTab: Always
 IndentWidth: 4
 TabWidth: 4
-ColumnLimit: 75
+ColumnLimit: 80
