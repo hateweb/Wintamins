@@ -36,7 +36,7 @@ jobs:
         cache: true
         install: >-
           make
-          ${{ matrix.env_prefix }}-gcc
+          ${{ matrix.env_prefix }}-clang
 
     - name: Build
       run: |
