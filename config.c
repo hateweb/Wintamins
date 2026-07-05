@@ -33,43 +33,44 @@ bool config_created = false;
 	if (strcmp(key, #name) == 0)                \
 	{                                           \
 		strncpy(name, value, sizeof(name) - 1); \
-		name[sizeof(name) - 1] = '\0';          \
+		(name)[sizeof(name) - 1] = '\0';        \
 	}
 
 #define PARSE_INT(name)          \
 	if (strcmp(key, #name) == 0) \
 	{                            \
-		name = atoi(value);      \
+		(name) = atoi(value);    \
 	}
 
-#define PARSE_HEX(name)                      \
-	if (strcmp(key, #name) == 0)             \
-	{                                        \
-		name = (int)strtol(value, NULL, 16); \
-	}
-
-#define PARSE_BOOL(name)                       \
+#define PARSE_HEX(name)                        \
 	if (strcmp(key, #name) == 0)               \
 	{                                          \
-		name = strcasecmp(value, "true") == 0; \
+		(name) = (int)strtol(value, NULL, 16); \
+	}
+
+#define PARSE_BOOL(name)                         \
+	if (strcmp(key, #name) == 0)                 \
+	{                                            \
+		(name) = strcasecmp(value, "true") == 0; \
 	}
 
 #define STRINGIFY(name) #name
 #define STRINGIFY_NEW(name) str_##name
 
-#define SERIALIZE_INT(name) \
-	char new_##name[MAX_LINE_LEN]; \
+#define SERIALIZE_INT(name)                                             \
+	char new_##name[MAX_LINE_LEN];                                      \
 	snprintf(new_##name, sizeof(new_##name), "%s = %d\n", #name, name); \
 	fputs(new_##name, file);
 
-#define SERIALIZE_HEX(name) \
-	char new_##name[MAX_LINE_LEN]; \
+#define SERIALIZE_HEX(name)                                             \
+	char new_##name[MAX_LINE_LEN];                                      \
 	snprintf(new_##name, sizeof(new_##name), "%s = %x\n", #name, name); \
 	fputs(new_##name, file);
 
-#define SERIALIZE_BOOL(name) \
-	char new_##name[MAX_LINE_LEN]; \
-	snprintf(new_##name, sizeof(new_##name), "%s = %s\n", #name, name ? "true" : "false"); \
+#define SERIALIZE_BOOL(name)                                     \
+	char new_##name[MAX_LINE_LEN];                               \
+	snprintf(new_##name, sizeof(new_##name), "%s = %s\n", #name, \
+		(name) ? "true" : "false");                              \
 	fputs(new_##name, file);
 
 // ...what?
@@ -112,6 +113,7 @@ char* trim(char* str)
 	return str;
 }
 
+// make this key value stuff a structure?
 void assign_config(const char* key, const char* value)
 {  // clang-format off
 	PARSE_BOOL(focus_window_on_drag)
@@ -137,10 +139,8 @@ void ini_parse()
 	{
 		if (!config_created)
 		{
-			FILE* newfile = fopen("wintamins.ini", "w");
-			fputs(default_config, newfile);
+			ini_write();
 			config_created = true;
-			fclose(newfile);
 			ini_parse();
 		}
 		else
@@ -162,11 +162,12 @@ void ini_parse()
 
 		*equal = '\0';
 
-		char* k = trim(trimmed);
-		char* v = trim(equal + 1);
+		char* key = trim(trimmed);
+		char* value = trim(equal + 1);
 
-		assign_config(k, v);
+		assign_config(key, value);
 	}
+
 	fclose(file);
 }
 
@@ -203,8 +204,8 @@ void license_write()
 	if (file_chk != NULL)
 		return;
 
-	HRSRC res = FindResource(
-		NULL, MAKEINTRESOURCE(IDR_LICENSE), "LICENSE_DATA");
+	HRSRC res =
+		FindResource(NULL, MAKEINTRESOURCE(IDR_LICENSE), "LICENSE_DATA");
 	if (!res)
 		return;
 
