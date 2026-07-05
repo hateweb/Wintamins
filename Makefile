@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang
 RC = windres
 
 ARCH ?= 64
@@ -16,8 +16,11 @@ else
 	TARGET = $(BUILD_DIR)/Wintamins64.exe
 endif
 
-# CFLAGS = -Wall -Wextra -g -Og -mwindows -flto -MMD -MP $(ARCH_FLAGS)
-CFLAGS = -Wl,-s -static -O3 -mwindows -flto -MMD -MP $(ARCH_FLAGS)
+# CFLAGS = -g -Og -flto -MMD -MP $(ARCH_FLAGS)
+CFLAGS = -static -O3 -flto -MMD -MP $(ARCH_FLAGS)
+
+# LFLAGS = $(CFLAGS) -Wall -Wextra  -mwindows
+LFLAGS = $(CFLAGS) -Wl,-s -mwindows
 LDLIBS = -lcomctl32 -ldwmapi
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
@@ -31,7 +34,7 @@ RC_OBJ = $(patsubst $(SRC_DIR)/%.rc, $(BUILD_DIR)/%.res.o, $(RSRC))
 all: $(BUILD_DIR) $(TARGET)
 
 $(TARGET): $(OBJS) $(RC_OBJ)
-	$(CC) $(CFLAGS) -o "$@" $(OBJS) $(RC_OBJ) $(LDLIBS)
+	$(CC) $(LFLAGS) -o "$@" $(OBJS) $(RC_OBJ) $(LDLIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o "$@"
