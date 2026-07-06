@@ -16,22 +16,10 @@
 	along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <windows.h>
-
 #include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
 
-#include <handleapi.h>
-#include <libloaderapi.h>
-#include <minwindef.h>
-#include <processenv.h>
-#include <processthreadsapi.h>
-#include <securitybaseapi.h>
+#include <windows.h>
 #include <commctrl.h>
-#include <wingdi.h>
-#include <winnt.h>
-#include <winreg.h>
 
 #include "resources.h"
 #include "config.h"

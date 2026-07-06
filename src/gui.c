@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
+
 #include <windows.h>
 #include <commctrl.h>
+
 #include "resources.h"
 #include "gui.h"
 #include "config.h"
@@ -85,9 +87,7 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 				{
 					PNMLINK pnmLink = (PNMLINK)lparam;
 
-					// Note: SysLink controls operate internally only in
-					// Unicode. The szUrl member is always a wide string
-					// (WCHAR), so ShellExecuteW must be used to open it.
+					// syslinks always use unicode
 					ShellExecuteW(NULL, L"open", pnmLink->item.szUrl, NULL,
 						NULL, SW_SHOWNORMAL);
 					return TRUE;
@@ -97,9 +97,6 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 			{
 				if (pnmhdr->code == NM_CLICK || pnmhdr->code == NM_RETURN)
 				{
-					// Note: SysLink controls operate internally only in
-					// Unicode. The szUrl member is always a wide string
-					// (WCHAR), so ShellExecuteW must be used to open it.
 					ShellExecuteW(
 						NULL, L"open", L"LICENSE", NULL, NULL, SW_SHOWNORMAL);
 					return TRUE;

@@ -15,13 +15,14 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
-#include <libloaderapi.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include <windows.h>
+
 #include "resources.h"
 #include "config.h"
 
