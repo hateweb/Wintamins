@@ -212,13 +212,11 @@ void revert_config()
 	set_combo_value(hwnd_mouse, IDC_M5, action_m5);
 }
 
-bool in_light_mode()
+bool is_dark_mode()
 {
 	HKEY key;
-	DWORD lightmode = 0;
-	DWORD lightmode_sz = sizeof(DWORD);
-
-	printf("%lu\n", lightmode);
+	DWORD darkmode = 0;
+	DWORD darkmode_size = sizeof(DWORD);
 
 	LSTATUS status = RegOpenKeyExW(HKEY_CURRENT_USER,
 		L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personaliz"
@@ -228,10 +226,10 @@ bool in_light_mode()
 	if (status == ERROR_SUCCESS)
 	{
 		status = RegQueryValueExW(key, L"SystemUsesLightTheme", NULL, NULL,
-			(LPBYTE)&lightmode, &lightmode_sz);
+			(LPBYTE)&darkmode, &darkmode_size);
 		RegCloseKey(key);
 	}
-	return lightmode == 0;
+	return darkmode;
 }
 
 void setup_tray(HWND hwnd, bool update)
@@ -241,7 +239,7 @@ void setup_tray(HWND hwnd, bool update)
 	tray_data.uID = 1;
 	tray_data.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	tray_data.uCallbackMessage = WM_TRAYICON;
-	tray_data.hIcon = in_light_mode() ? icon_light : icon_dark;
+	tray_data.hIcon = is_dark_mode() ? icon_dark : icon_light;
 	snprintf(tray_data.szTip, sizeof(tray_data.szTip), "%s", name);
 
 	Shell_NotifyIconA(update ? NIM_MODIFY : NIM_ADD, &tray_data);
