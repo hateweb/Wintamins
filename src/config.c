@@ -29,6 +29,10 @@
 
 #define MAX_LINE_LEN 256
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 bool config_created = false;
 
 #define PARSE_STR(name)                         \
