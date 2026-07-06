@@ -684,8 +684,11 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 			{
 				mod_active = false;
 
-				UnhookWindowsHookEx(hk_mouse);
-				hk_mouse = NULL;
+				if (state == ACTION_NONE && hk_mouse)
+				{
+					UnhookWindowsHookEx(hk_mouse);
+					hk_mouse = NULL;
+				}
 
 				if (drag_occurred)
 				{
