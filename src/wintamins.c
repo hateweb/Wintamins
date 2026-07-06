@@ -579,8 +579,7 @@ void drag(MSLLHOOKSTRUCT* mouse_struct)
 	}
 
 	SetWindowPos(target_wnd, NULL, x, y, 0, 0,
-		SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS |
-			SWP_DEFERERASE);
+		SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 bool any_key_down(WPARAM wparam)
