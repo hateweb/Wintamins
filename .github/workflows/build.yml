@@ -26,7 +26,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Set up dependencies
       uses: msys2/setup-msys2@v2
@@ -44,7 +44,7 @@ jobs:
         make ARCH=${{matrix.arch}}
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: win32-build-${{ matrix.arch }}
-        path: ${{ github.workspace }}/out/Wintamins${{ matrix.arch }}.exe
+        path: out/Wintamins${{ matrix.arch }}.exe
