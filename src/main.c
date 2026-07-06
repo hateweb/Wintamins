@@ -60,9 +60,10 @@ int WINAPI WinMain(HINSTANCE hinstance,
 
 	DeleteMenu(menu, SC_CLOSE, MF_BYCOMMAND);
 
-	freopen("CONIN$", "r", stdin);
-	freopen("CONOUT$", "w", stdout);
-	freopen("CONOUT$", "w", stderr);
+	FILE *f;
+	freopen_s(&f, "CONIN$", "r", stdin);
+	freopen_s(&f, "CONOUT$", "w", stdout);
+	freopen_s(&f, "CONOUT$", "w", stderr);
 
 	ini_parse();
 	license_write();
