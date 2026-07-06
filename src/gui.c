@@ -118,9 +118,13 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 			if (LOWORD(wparam) == IDC_AUTOSTART && HIWORD(wparam) == BN_CLICKED)
 			{
 				HWND autostartadmin = GetDlgItem(hwnd, IDC_AUTOSTARTADMIN);
-				EnableWindow(autostartadmin, IsDlgButtonChecked(tabs[0].hwnd,
-												 IDC_AUTOSTART) == BST_CHECKED);
+				if (autostartadmin)
+					EnableWindow(autostartadmin,
+						IsDlgButtonChecked(tabs[0].hwnd, IDC_AUTOSTART) ==
+							BST_CHECKED);
+				return TRUE;
 			}
+			break;
 		}
 
 		case WM_CTLCOLORDLG:
@@ -139,13 +143,14 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 int get_combo_value(HWND tab, int id)
 {
 	HWND item = GetDlgItem(tab, id);
-	return (int)SendMessage(item, CB_GETCURSEL, 0, 0);
+	return item ? (int)SendMessage(item, CB_GETCURSEL, 0, 0) : 0;
 }
 
 void set_combo_value(HWND tab, int id, int v)
 {
 	HWND item = GetDlgItem(tab, id);
-	SendMessage(item, CB_SETCURSEL, v, 0);
+	if (item)
+		SendMessage(item, CB_SETCURSEL, v, 0);
 }
 
 void apply_config()
@@ -153,25 +158,28 @@ void apply_config()
 	const HWND hwnd_general = tabs[0].hwnd;
 	const HWND hwnd_mouse = tabs[1].hwnd;
 
-	focus_window_on_drag =
-		IsDlgButtonChecked(hwnd_general, IDC_FOCUSWINDOW) == BST_CHECKED;
-	closest_corner_on_resize =
-		IsDlgButtonChecked(hwnd_general, IDC_CLOSESTCORNER) == BST_CHECKED;
-	snap_cursor_on_resize =
-		IsDlgButtonChecked(hwnd_general, IDC_SNAPCURSOR) == BST_CHECKED;
-	hide_titlebars =
-		IsDlgButtonChecked(hwnd_general, IDC_HIDEBARS) == BST_CHECKED;
-	add_to_autostart =
-		IsDlgButtonChecked(hwnd_general, IDC_AUTOSTART) == BST_CHECKED;
-	autostart_as_admin =
-		IsDlgButtonChecked(hwnd_general, IDC_AUTOSTARTADMIN) == BST_CHECKED;
-	modifier_key = get_combo_value(hwnd_mouse, IDC_MODIFIER);
-	modifier_key2 = get_combo_value(hwnd_mouse, IDC_MODIFIER2);
-	action_lmb = get_combo_value(hwnd_mouse, IDC_LMB);
-	action_mmb = get_combo_value(hwnd_mouse, IDC_MMB);
-	action_rmb = get_combo_value(hwnd_mouse, IDC_RMB);
-	action_m4 = get_combo_value(hwnd_mouse, IDC_M4);
-	action_m5 = get_combo_value(hwnd_mouse, IDC_M5);
+	if (hwnd_general && hwnd_mouse)
+	{
+		focus_window_on_drag =
+			IsDlgButtonChecked(hwnd_general, IDC_FOCUSWINDOW) == BST_CHECKED;
+		closest_corner_on_resize =
+			IsDlgButtonChecked(hwnd_general, IDC_CLOSESTCORNER) == BST_CHECKED;
+		snap_cursor_on_resize =
+			IsDlgButtonChecked(hwnd_general, IDC_SNAPCURSOR) == BST_CHECKED;
+		hide_titlebars =
+			IsDlgButtonChecked(hwnd_general, IDC_HIDEBARS) == BST_CHECKED;
+		add_to_autostart =
+			IsDlgButtonChecked(hwnd_general, IDC_AUTOSTART) == BST_CHECKED;
+		autostart_as_admin =
+			IsDlgButtonChecked(hwnd_general, IDC_AUTOSTARTADMIN) == BST_CHECKED;
+		modifier_key = get_combo_value(hwnd_mouse, IDC_MODIFIER);
+		modifier_key2 = get_combo_value(hwnd_mouse, IDC_MODIFIER2);
+		action_lmb = get_combo_value(hwnd_mouse, IDC_LMB);
+		action_mmb = get_combo_value(hwnd_mouse, IDC_MMB);
+		action_rmb = get_combo_value(hwnd_mouse, IDC_RMB);
+		action_m4 = get_combo_value(hwnd_mouse, IDC_M4);
+		action_m5 = get_combo_value(hwnd_mouse, IDC_M5);
+	}
 
 	ini_write();
 
@@ -186,13 +194,19 @@ void apply_config()
 		EnumWindows(enum_win_proc, 0);
 	}
 	else if (hk_win_ev)
+	{
 		UnhookWinEvent(hk_win_ev);
+		hk_win_ev = NULL;
+	}
 }
 
 void revert_config()
 {
 	const HWND hwnd_general = tabs[0].hwnd;
 	const HWND hwnd_mouse = tabs[1].hwnd;
+
+	if (!hwnd_general || !hwnd_mouse)
+		return;
 
 	CheckDlgButton(hwnd_general, IDC_FOCUSWINDOW,
 		focus_window_on_drag ? BST_CHECKED : BST_UNCHECKED);
@@ -216,11 +230,11 @@ void revert_config()
 	set_combo_value(hwnd_mouse, IDC_M5, action_m5);
 }
 
-bool is_dark_mode()
+bool is_light_mode()
 {
 	HKEY key;
-	DWORD darkmode = 0;
-	DWORD darkmode_size = sizeof(DWORD);
+	DWORD lightmode = 1;
+	DWORD lightmode_size = sizeof(DWORD);
 
 	LSTATUS status = RegOpenKeyExW(HKEY_CURRENT_USER,
 		L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personaliz"
@@ -230,10 +244,11 @@ bool is_dark_mode()
 	if (status == ERROR_SUCCESS)
 	{
 		status = RegQueryValueExW(key, L"SystemUsesLightTheme", NULL, NULL,
-			(LPBYTE)&darkmode, &darkmode_size);
+			(LPBYTE)&lightmode, &lightmode_size);
 		RegCloseKey(key);
 	}
-	return darkmode;
+
+	return lightmode;
 }
 
 void setup_tray(HWND hwnd, bool update)
@@ -243,7 +258,7 @@ void setup_tray(HWND hwnd, bool update)
 	tray_data.uID = 1;
 	tray_data.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	tray_data.uCallbackMessage = WM_TRAYICON;
-	tray_data.hIcon = is_dark_mode() ? icon_dark : icon_light;
+	tray_data.hIcon = is_light_mode() ? icon_dark : icon_light;
 	snprintf(tray_data.szTip, sizeof(tray_data.szTip), "%s", name);
 
 	Shell_NotifyIconA(update ? NIM_MODIFY : NIM_ADD, &tray_data);
@@ -265,7 +280,7 @@ void tray_menu(HWND hwnd)
 		return;
 	}
 
-	// wont close if we don't force focus it
+	// won't close if we don't force focus it
 	SetForegroundWindow(hwnd);
 
 	TrackPopupMenu(
@@ -298,7 +313,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 			title_font = CreateFontA(title_font_size, 0, 0, 0, FW_NORMAL, FALSE,
 				FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
 				CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-				DEFAULT_PITCH | FF_DONTCARE, "Ms Shell Dlg");
+				DEFAULT_PITCH | FF_DONTCARE, "MS Shell Dlg");
 
 			EnumChildWindows(hwnd, hide_focus, lparam);
 			HINSTANCE hinstance = GetModuleHandle(NULL);
@@ -315,8 +330,10 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 				SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)big_icon);
 
 			HWND tab_wnd = GetDlgItem(hwnd, IDC_TAB1);
+			if (!tab_wnd)
+				return TRUE;
 
-			TCITEM tie;
+			TCITEMA tie;
 			tie.mask = TCIF_TEXT;
 			for (int i = 0; i < max_tabs; i++)
 			{
@@ -334,24 +351,29 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 			MapWindowPoints(tab_wnd, hwnd, (LPPOINT)&tab_rect, 2);
 
 			for (int i = 0; i < max_tabs; i++)
-				SetWindowPos(tabs[i].hwnd, HWND_TOP, tab_rect.left,
-					tab_rect.top, tab_rect.right - tab_rect.left,
-					tab_rect.bottom - tab_rect.top,
-					i == 0 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
+				if (tabs[i].hwnd)
+					SetWindowPos(tabs[i].hwnd, HWND_TOP, tab_rect.left,
+						tab_rect.top, tab_rect.right - tab_rect.left,
+						tab_rect.bottom - tab_rect.top,
+						i == 0 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
 
 			HWND modkey = GetDlgItem(tabs[1].hwnd, IDC_MODIFIER);
-			for (int i = 1; i < mod_names_size; i++)
-				SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
+			if (modkey)
+				for (int i = 1; i < mod_names_size; i++)
+					SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
 
 			HWND modkey2 = GetDlgItem(tabs[1].hwnd, IDC_MODIFIER2);
-			for (int i = 0; i < mod_names_size; i++)
-				SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
+			if (modkey2)
+				for (int i = 0; i < mod_names_size; i++)
+					SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
 
 			for (int i = 0; i < key_ids_size; i++)
 			{
 				HWND item = GetDlgItem(tabs[1].hwnd, key_ids[i]);
-				for (int j = 0; j < act_names_size; j++)
-					SendMessage(item, CB_ADDSTRING, 0, (LPARAM)act_names[j]);
+				if (item)
+					for (int j = 0; j < act_names_size; j++)
+						SendMessage(
+							item, CB_ADDSTRING, 0, (LPARAM)act_names[j]);
 			}
 
 			revert_config();
@@ -370,11 +392,11 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 		case WM_NOTIFY:
 		{
 			LPNMHDR lpnm = (LPNMHDR)lparam;
-			if (lpnm->idFrom == IDC_TAB1 && lpnm->code == TCN_SELCHANGE)
+			if (lpnm && lpnm->idFrom == IDC_TAB1 && lpnm->code == TCN_SELCHANGE)
 			{
-				HWND hTab = lpnm->hwndFrom;
-				int iPage = TabCtrl_GetCurSel(hTab);
-				switch_tab(NULL, iPage);
+				HWND tab = lpnm->hwndFrom;
+				int cur_tab = TabCtrl_GetCurSel(tab);
+				switch_tab(NULL, cur_tab);
 			}
 			break;
 		}
@@ -383,10 +405,10 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 		{
 			if (lparam == WM_RBUTTONUP)
 			{
-				case WM_RBUTTONUP:
-					tray_menu(hwnd);
-					return TRUE;
+				tray_menu(hwnd);
+				return TRUE;
 			}
+			break;
 		}
 
 		case WM_COMMAND:
@@ -460,7 +482,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 		case WM_CLOSE:
 			ShowWindow(hwnd, SW_HIDE);
-			switch_tab(NULL, 0);
+			switch_tab(hwnd, 0);
 			return TRUE;
 
 		case WM_DESTROY:
