@@ -495,7 +495,7 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
 	else if (option == ACTION_CLOSE)
-		SendMessage(target_wnd, WM_CLOSE, 0, 0);
+		PostMessage(target_wnd, WM_CLOSE, 0, 0);
 }
 
 void release_logic(int option, MSLLHOOKSTRUCT* mouse_struct)
