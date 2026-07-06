@@ -47,8 +47,9 @@ POINT mouse_start;
 RECT window_start;
 
 HHOOK hk_mouse;
+HHOOK hk_keyboard;
 
-const char* whitelist[] = {"Progman", "WorkerW", "Shell_TrayWnd",
+const char* whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
 	"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
 	"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
 	"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
@@ -68,7 +69,7 @@ bool compare(HWND hwnd)
 	return false;
 }
 
-void hello(HWND hwnd)
+void override_style(HWND hwnd)
 {
 	if (tracked_count >= MAX_TRACKED_WINDOWS || !hwnd || !IsWindow(hwnd) ||
 		!IsWindowVisible(hwnd) || GetAncestor(hwnd, GA_ROOT) != hwnd)
@@ -306,23 +307,34 @@ void CALLBACK handle_win_ev(HWINEVENTHOOK hook,
 	if (idobj != OBJID_WINDOW || idchild != CHILDID_SELF)
 		return;
 
-	hello(hwnd);
+	override_style(hwnd);
 }
 
 void init_win_event_hk()
 {
+	if (hk_win_ev)
+		return;
+
 	hk_win_ev = SetWinEventHook(EVENT_OBJECT_SHOW, EVENT_OBJECT_SHOW, NULL,
 		&handle_win_ev, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
-
 	if (!hk_win_ev)
 		printf("L%d -> failed to initialize event hook", __LINE__);
+}
+
+void destroy_win_event_hk()
+{
+	if (!hk_win_ev)
+		return;
+
+	UnhookWinEvent(hk_win_ev);
+	hk_win_ev = NULL;
 }
 
 BOOL CALLBACK enum_win_proc(HWND hwnd, LPARAM lparam)
 {
 	UNREFERENCED_PARAMETER(lparam);
 
-	hello(hwnd);
+	override_style(hwnd);
 	return TRUE;
 }
 
@@ -641,6 +653,44 @@ LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
 	return CallNextHookEx(hk_mouse, ncode, wparam, lparam);
 }
 
+void init_keyboard_hk()
+{
+	if (hk_keyboard)
+		return;
+
+	hk_keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_proc, NULL, 0);
+	if (!hk_keyboard)
+		printf("L%d -> failed to initialize keyboard hook", __LINE__);
+}
+
+void destroy_keyboard_hk()
+{
+	if (!hk_keyboard)
+		return;
+
+	UnhookWindowsHookEx(hk_keyboard);
+	hk_keyboard = NULL;
+}
+
+void init_mouse_hk()
+{
+	if (hk_mouse)
+		return;
+
+	hk_mouse = SetWindowsHookEx(WH_MOUSE_LL, mouse_proc, NULL, 0);
+	if (!hk_mouse)
+		printf("L%d -> failed to initialize mouse hook", __LINE__);
+}
+
+void destroy_mouse_hk()
+{
+	if (!hk_mouse)
+		return;
+
+	UnhookWindowsHookEx(hk_mouse);
+	hk_mouse = NULL;
+}
+
 LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 {
 	if (ncode == HC_ACTION)
@@ -653,28 +703,18 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 		{
 			if (wparam == WM_KEYDOWN || wparam == WM_SYSKEYDOWN)
 			{
+				puts("hello");
 				mod_active = true;
-
-				if (!hk_mouse)
-					hk_mouse =
-						SetWindowsHookEx(WH_MOUSE_LL, mouse_proc, NULL, 0);
-
-				if (!hk_mouse)
-				{
-					printf("L%d -> failed to initialize mouse hook", __LINE__);
-					return 1;
-				}
+				init_mouse_hk();
 			}
 
 			else if (wparam == WM_KEYUP || wparam == WM_SYSKEYUP)
 			{
+				puts("goodbye");
 				mod_active = false;
 
-				if (state == ACTION_NONE && hk_mouse)
-				{
-					UnhookWindowsHookEx(hk_mouse);
-					hk_mouse = NULL;
-				}
+				if (state == ACTION_NONE)
+					destroy_mouse_hk();
 
 				if (drag_occurred)
 				{

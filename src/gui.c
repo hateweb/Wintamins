@@ -11,6 +11,8 @@
 
 #define WM_TRAYICON (WM_APP + 1)
 
+bool master_switch = true;
+
 tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 	{"About", NULL, IDD_ABOUT}};
 const uint8_t max_tabs = sizeof(tabs) / sizeof(tab);
@@ -274,11 +276,15 @@ void tray_menu(HWND hwnd)
 		return;
 
 	HMENU submenu = GetSubMenu(menu, 0);
+
 	if (!submenu)
 	{
 		DestroyMenu(menu);
 		return;
 	}
+
+	UINT check_state = master_switch ? MF_CHECKED : MF_UNCHECKED;
+	CheckMenuItem(submenu, ID_TRAY_ENABLED, MF_BYCOMMAND | check_state);
 
 	// won't close if we don't force focus it
 	SetForegroundWindow(hwnd);
@@ -448,6 +454,33 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 					}
 				}
 				break;
+
+				case ID_TRAY_ENABLED:
+					master_switch = !master_switch;
+
+					if (master_switch)
+					{
+						init_keyboard_hk();
+
+						if (hide_titlebars)
+						{
+							init_win_event_hk();
+							EnumWindows(enum_win_proc, 0);
+						}
+					}
+					else
+					{
+						destroy_keyboard_hk();
+						destroy_mouse_hk();
+
+						if (hide_titlebars)
+						{
+							restore();
+							destroy_win_event_hk();
+						}
+					}
+
+					return TRUE;
 
 				case ID_TRAY_CON:
 					console_state = !console_state;

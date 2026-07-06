@@ -33,10 +33,13 @@ extern HCURSOR cursor_drag;
 extern HCURSOR cursor_resize_tl_br;
 extern HCURSOR cursor_resize_tr_bl;
 
+extern HHOOK hk_mouse;
+extern HHOOK hk_keyboard;
+
 extern HWINEVENTHOOK hk_win_ev;
 
 bool compare(HWND hwnd);
-void hello(HWND hwnd);
+void override_style(HWND hwnd);
 void adjust_wnd_rect(HWND hwnd,
 	LONG_PTR from_style,
 	LONG_PTR to_style,
@@ -50,6 +53,11 @@ void winkey();
 bool elevate();
 void autostart();
 void init_win_event_hk();
+void destroy_win_event_hk();
+void init_keyboard_hk();
+void destroy_keyboard_hk();
+void init_mouse_hk();
+void destroy_mouse_hk();
 
 BOOL CALLBACK enum_win_proc(HWND hwnd, LPARAM lparam);
 LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam);

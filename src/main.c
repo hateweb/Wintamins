@@ -75,13 +75,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		init_win_event_hk();
 	}
 
-	HHOOK hk_keyboard =
-		SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_proc, NULL, 0);
-	if (!hk_keyboard)
-	{
-		printf("L%d -> failed to initialize keyboard hook", __LINE__);
-		return 1;
-	}
+	init_keyboard_hk();
 
 	INITCOMMONCONTROLSEX iccx;
 	iccx.dwSize = sizeof(INITCOMMONCONTROLSEX);
