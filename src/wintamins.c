@@ -470,11 +470,11 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 		begin_resize();
 
 	else if (option == ACTION_MAXIMIZE)
-		ShowWindow(target_wnd,
-			wp->showCmd == SW_SHOWMAXIMIZED ? SW_RESTORE : SW_MAXIMIZE);
+		PostMessage(target_wnd, WM_SYSCOMMAND,
+			wp->showCmd == SW_SHOWMAXIMIZED ? SC_RESTORE : SC_MAXIMIZE, 0);
 
 	else if (option == ACTION_MINIMIZE)
-		ShowWindow(target_wnd, SW_MINIMIZE);
+		PostMessage(target_wnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 
 	else if (option == ACTION_BRINGDOWN)
 		SetWindowPos(target_wnd, HWND_BOTTOM, 0, 0, 0, 0,
@@ -568,7 +568,7 @@ void drag(MSLLHOOKSTRUCT* mouse_struct)
 
 	if (was_maximized)
 	{
-		ShowWindow(target_wnd, SW_RESTORE);
+		PostMessage(target_wnd, WM_SYSCOMMAND, SC_RESTORE, 0);
 		RECT rect_out;
 		get_unmax_bounds(target_wnd, &rect_out);
 
