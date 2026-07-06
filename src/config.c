@@ -201,7 +201,10 @@ void license_write()
 {
 	FILE* file_chk = fopen("LICENSE", "r");
 	if (file_chk != NULL)
+	{
+		fclose(file_chk);
 		return;
+	}
 
 	fclose(file_chk);
 
@@ -221,7 +224,9 @@ void license_write()
 		return;
 
 	FILE* file = fopen("LICENSE", "wb");
-	fprintf(file, "%s", license_text);
+	if (file == NULL)
+		return;
 
+	fprintf(file, "%s", license_text);
 	fclose(file);
 }
