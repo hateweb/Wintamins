@@ -5,7 +5,7 @@ RC = windres
 
 ARCH ?= 64
 
-SRC_DIR = .
+SRC_DIR = src
 BUILD_DIR = out
 
 ifeq ($(ARCH),32)
@@ -48,7 +48,7 @@ $(BUILD_DIR):
 	mkdir -p "$(BUILD_DIR)"
 
 compiledb:
-	compiledb -o "$(SRC_DIR)/compile_commands.json" -n make
+	compiledb -n make
 	
 clean:
 	rm -rf "$(BUILD_DIR)"
