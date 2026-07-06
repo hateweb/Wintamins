@@ -69,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 
 	autostart();
 
-	if (hide_titlebars || no_thickframe)
+	if (hide_titlebars)
 	{
 		EnumWindows(enum_win_proc, 0);
 		init_win_event_hk();

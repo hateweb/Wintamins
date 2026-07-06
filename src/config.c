@@ -24,6 +24,7 @@
 #include <windows.h>
 
 #include "resources.h"
+#include "wintamins.h"
 #include "config.h"
 
 #define MAX_LINE_LEN 256
@@ -83,7 +84,6 @@ bool focus_window_on_drag = true;
 bool closest_corner_on_resize = true;
 bool snap_cursor_on_resize = false;
 bool hide_titlebars = false;
-bool no_thickframe = false;
 bool add_to_autostart = false;
 bool autostart_as_admin = false;
 uint8_t action_lmb = ACTION_DRAG;
@@ -121,7 +121,6 @@ void assign_config(const char* key, const char* value)
 	else PARSE_BOOL(closest_corner_on_resize)
 	else PARSE_BOOL(snap_cursor_on_resize)
 	else PARSE_BOOL(hide_titlebars)
-	else PARSE_BOOL(no_thickframe)
 	else PARSE_BOOL(add_to_autostart)
 	else PARSE_BOOL(autostart_as_admin)
 	else PARSE_INT(modifier_key)
@@ -186,7 +185,6 @@ void ini_write()
 	SERIALIZE_BOOL(closest_corner_on_resize);
 	SERIALIZE_BOOL(snap_cursor_on_resize);
 	SERIALIZE_BOOL(hide_titlebars);
-	SERIALIZE_BOOL(no_thickframe);
 	SERIALIZE_BOOL(add_to_autostart);
 	SERIALIZE_BOOL(autostart_as_admin);
 	SERIALIZE_INT(modifier_key);

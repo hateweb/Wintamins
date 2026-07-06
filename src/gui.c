@@ -175,8 +175,6 @@ void apply_config()
 		IsDlgButtonChecked(hwnd_general, IDC_SNAPCURSOR) == BST_CHECKED;
 	hide_titlebars =
 		IsDlgButtonChecked(hwnd_general, IDC_HIDEBARS) == BST_CHECKED;
-	no_thickframe =
-		IsDlgButtonChecked(hwnd_general, IDC_NOTHICKFRAME) == BST_CHECKED;
 	add_to_autostart =
 		IsDlgButtonChecked(hwnd_general, IDC_AUTOSTART) == BST_CHECKED;
 	autostart_as_admin =
@@ -194,7 +192,7 @@ void apply_config()
 	restore();
 	autostart();
 
-	if (hide_titlebars || no_thickframe)
+	if (hide_titlebars)
 	{
 		if (!hk_win_ev)
 			init_win_event_hk();
@@ -218,8 +216,6 @@ void revert_config()
 		snap_cursor_on_resize ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(hwnd_general, IDC_HIDEBARS,
 		hide_titlebars ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_NOTHICKFRAME,
-		no_thickframe ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(hwnd_general, IDC_AUTOSTART,
 		add_to_autostart ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(hwnd_general, IDC_AUTOSTARTADMIN,

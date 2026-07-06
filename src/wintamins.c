@@ -100,12 +100,6 @@ void hello(HWND hwnd)
 	if (hide_titlebars)
 		style_override &= ~WS_CAPTION;
 
-	if (no_thickframe)
-	{
-		style_override &= ~WS_THICKFRAME;
-		style_override |= WS_BORDER;
-	}
-
 	if (style_override == original_style)
 		return;
 
@@ -392,6 +386,15 @@ bool get_unmax_bounds(HWND hwnd, RECT* rect_out)
 	return true;
 }
 
+void reset_values()
+{
+	state = ACTION_NONE;
+	was_maximized = false;
+	target_wnd = NULL;
+
+	SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+}
+
 void set_cursor(HCURSOR* cur)
 {
 	for (int i = 0; i < cursor_amt; i++)
@@ -402,72 +405,84 @@ void set_cursor(HCURSOR* cur)
 	}
 }
 
+void begin_resize()
+{
+	// don't resize if the window doesn't allow to.
+	LONG_PTR original_style = GetWindowLongPtr(target_wnd, GWL_STYLE);
+	if ((original_style & WS_THICKFRAME) == 0)
+	{
+		state = ACTION_NONE;
+		return;
+	}
+
+	int dir = CORNER_BOTTOMRIGHT;
+	HCURSOR* cur = &cursor_resize_tl_br;
+	if (closest_corner_on_resize)
+	{
+		double dx_l = (double)mouse_start.x - window_start.left;
+		double dx_r = (double)mouse_start.x - window_start.right;
+		double dy_t = (double)mouse_start.y - window_start.top;
+		double dy_b = (double)mouse_start.y - window_start.bottom;
+
+		double d_tl = dx_l * dx_l + dy_t * dy_t;
+		double d_tr = dx_r * dx_r + dy_t * dy_t;
+		double d_bl = dx_l * dx_l + dy_b * dy_b;
+		double d_br = dx_r * dx_r + dy_b * dy_b;
+
+		double closest = d_tl;
+		dir = CORNER_TOPLEFT;
+
+		if (d_tr < closest)
+		{
+			closest = d_tr;
+			dir = CORNER_TOPRIGHT;
+			cur = &cursor_resize_tr_bl;
+		}
+		if (d_bl < closest)
+		{
+			closest = d_bl;
+			dir = CORNER_BOTTOMLEFT;
+			cur = &cursor_resize_tr_bl;
+		}
+		if (d_br < closest)
+		{
+			closest = d_br;
+			dir = CORNER_BOTTOMRIGHT;
+			cur = &cursor_resize_tl_br;
+		}
+	}
+
+	state = ACTION_RESIZE;
+
+	if (snap_cursor_on_resize)
+	{
+		int x = (dir == CORNER_TOPLEFT || dir == CORNER_BOTTOMLEFT)
+					? window_start.left
+					: window_start.right;
+		int y = (dir == CORNER_TOPLEFT || dir == CORNER_TOPRIGHT)
+					? window_start.top
+					: window_start.bottom;
+
+		SetCursorPos(x, y);
+	}
+
+	PostMessage(target_wnd, WM_SYSCOMMAND, SC_SIZE + dir, 0);
+	set_cursor(cur);
+}
+
 void click_logic(WINDOWPLACEMENT* wp, int option)
 {
 	if (option == ACTION_DRAG)
 	{
-		state = IN_DRAG;
+		state = ACTION_DRAG;
 		if (wp->showCmd == SW_SHOWMAXIMIZED)
 			was_maximized = true;
 
 		set_cursor(&cursor_drag);
 	}
 	else if (option == ACTION_RESIZE)
-	{
-		int dir = CORNER_BOTTOMRIGHT;
-		HCURSOR* cur = &cursor_resize_tl_br;
-		if (closest_corner_on_resize)
-		{
-			double dx_l = (double)mouse_start.x - window_start.left;
-			double dx_r = (double)mouse_start.x - window_start.right;
-			double dy_t = (double)mouse_start.y - window_start.top;
-			double dy_b = (double)mouse_start.y - window_start.bottom;
+		begin_resize();
 
-			double d_tl = dx_l * dx_l + dy_t * dy_t;
-			double d_tr = dx_r * dx_r + dy_t * dy_t;
-			double d_bl = dx_l * dx_l + dy_b * dy_b;
-			double d_br = dx_r * dx_r + dy_b * dy_b;
-
-			double closest = d_tl;
-			dir = CORNER_TOPLEFT;
-
-			if (d_tr < closest)
-			{
-				closest = d_tr;
-				dir = CORNER_TOPRIGHT;
-				cur = &cursor_resize_tr_bl;
-			}
-			if (d_bl < closest)
-			{
-				closest = d_bl;
-				dir = CORNER_BOTTOMLEFT;
-				cur = &cursor_resize_tr_bl;
-			}
-			if (d_br < closest)
-			{
-				closest = d_br;
-				dir = CORNER_BOTTOMRIGHT;
-				cur = &cursor_resize_tl_br;
-			}
-		}
-
-		state = IN_RESIZE;
-
-		if (snap_cursor_on_resize)
-		{
-			int x = (dir == CORNER_TOPLEFT || dir == CORNER_BOTTOMLEFT)
-						? window_start.left
-						: window_start.right;
-			int y = (dir == CORNER_TOPLEFT || dir == CORNER_TOPRIGHT)
-						? window_start.top
-						: window_start.bottom;
-
-			SetCursorPos(x, y);
-		}
-
-		PostMessage(target_wnd, WM_SYSCOMMAND, SC_SIZE + dir, 0);
-		set_cursor(cur);
-	}
 	else if (option == ACTION_MAXIMIZE)
 		ShowWindow(target_wnd,
 			wp->showCmd == SW_SHOWMAXIMIZED ? SW_RESTORE : SW_MAXIMIZE);
@@ -485,21 +500,23 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 
 void release_logic(int option, MSLLHOOKSTRUCT* mouse_struct)
 {
-	if (option == ACTION_RESIZE && state == IN_RESIZE)
+	if (option == ACTION_DRAG && state == ACTION_DRAG)
+		reset_values();
+
+	else if (option == ACTION_RESIZE && state == ACTION_RESIZE)
 	{
 		POINT pt = mouse_struct->pt;
 		PostMessage(target_wnd, WM_LBUTTONUP, 0, MAKELPARAM(pt.x, pt.y));
+		
+		reset_values();
 	}
-
-	state = IN_NONE;
-	was_maximized = false;
-	target_wnd = NULL;
-
-	SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
 }
 
 bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 {
+	if (state != ACTION_NONE)
+		return false;
+
 	WPARAM wparam = *p_wparam;
 	POINT pt = p_mouse_struct->pt;
 	HWND hwnd = WindowFromPoint(pt);
@@ -516,7 +533,7 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	WINDOWPLACEMENT wp;
 	wp.length = sizeof(WINDOWPLACEMENT);
 
-	if (!GetWindowPlacement(root_hwnd, &wp) || state != IN_NONE)
+	if (!GetWindowPlacement(root_hwnd, &wp) || state != ACTION_NONE)
 		return false;
 
 	target_wnd = root_hwnd;
@@ -613,10 +630,10 @@ LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
 		process_clicks(&wparam, mouse_struct))
 		return 1;
 
-	if (wparam == WM_MOUSEMOVE && target_wnd && state == IN_DRAG)
+	if (wparam == WM_MOUSEMOVE && target_wnd && state == ACTION_DRAG)
 		drag(mouse_struct);
 
-	else if (any_key_up(wparam) && state != IN_NONE)
+	else if (any_key_up(wparam) && state != ACTION_NONE)
 	{
 		if (wparam == WM_LBUTTONUP)
 			release_logic(action_lmb, mouse_struct);
