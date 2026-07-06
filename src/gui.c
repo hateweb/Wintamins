@@ -65,27 +65,12 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 	{
 		case WM_INITDIALOG:
 		{
-			backbrush = CreateSolidBrush(RGB(249, 249, 249));
-
-			EnumChildWindows(hwnd, hide_focus, lparam);
-			HWND autostartadmin = GetDlgItem(hwnd, IDC_AUTOSTARTADMIN);
-			EnableWindow(autostartadmin,
-				IsDlgButtonChecked(tabs[0].hwnd, IDC_AUTOSTART) == BST_CHECKED);
+			EnumChildWindows(hwnd, hide_focus, 0);
 
 			HWND title_ctrl = GetDlgItem(hwnd, IDC_TITLE);
-			if (title_ctrl)
-			{
-				title_font = CreateFontA(title_font_size, 0, 0, 0, FW_NORMAL,
-					FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
-					CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-					DEFAULT_PITCH | FF_DONTCARE, "Ms Shell Dlg");
+			if (title_ctrl && title_font)
+				SendMessage(title_ctrl, WM_SETFONT, (WPARAM)title_font, TRUE);
 
-				if (title_font)
-				{
-					SendMessage(
-						title_ctrl, WM_SETFONT, (WPARAM)title_font, TRUE);
-				}
-			}
 			return TRUE;
 		}
 
@@ -143,20 +128,6 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 			SetBkMode(hdc, TRANSPARENT);
 			return (INT_PTR)backbrush;
 		}
-
-		case WM_DESTROY:
-			if (backbrush)
-			{
-				DeleteObject(backbrush);
-				backbrush = NULL;
-			}
-
-			if (title_font)
-			{
-				DeleteObject(title_font);
-				title_font = NULL;
-			}
-			break;
 	}
 	return FALSE;
 }
@@ -320,6 +291,13 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 	{
 		case WM_INITDIALOG:
 		{
+			backbrush = CreateSolidBrush(RGB(249, 249, 249));
+
+			title_font = CreateFontA(title_font_size, 0, 0, 0, FW_NORMAL, FALSE,
+				FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+				CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_DONTCARE, "Ms Shell Dlg");
+
 			EnumChildWindows(hwnd, hide_focus, lparam);
 			HINSTANCE hinstance = GetModuleHandle(NULL);
 			setup_tray(hwnd, false);
@@ -484,6 +462,18 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 			return TRUE;
 
 		case WM_DESTROY:
+			if (backbrush)
+			{
+				DeleteObject(backbrush);
+				backbrush = NULL;
+			}
+
+			if (title_font)
+			{
+				DeleteObject(title_font);
+				title_font = NULL;
+			}
+
 			goodbye();
 			PostQuitMessage(0);
 			return TRUE;
