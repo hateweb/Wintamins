@@ -34,19 +34,23 @@ static HBRUSH backbrush;
 HICON icon_dark;
 HICON icon_light;
 
-NOTIFYICONDATA tray_data;
+NOTIFYICONDATAA tray_data;
 
 void switch_tab(HWND hwnd, int index)
 {
 	if (hwnd)
 	{
 		HWND tab_wnd = GetDlgItem(hwnd, IDC_TAB1);
-		TabCtrl_SetCurSel(tab_wnd, 0);
+		if (tab_wnd)
+			TabCtrl_SetCurSel(tab_wnd, index);
 	}
 
-	ShowWindow(tabs[current_tab].hwnd, SW_HIDE);
-	current_tab = index;
-	ShowWindow(tabs[current_tab].hwnd, SW_SHOW);
+	if (current_tab != index)
+	{
+		ShowWindow(tabs[current_tab].hwnd, SW_HIDE);
+		current_tab = index;
+		ShowWindow(tabs[current_tab].hwnd, SW_SHOW);
+	}
 }
 
 BOOL CALLBACK hide_focus(HWND hwnd, LPARAM lparam)
