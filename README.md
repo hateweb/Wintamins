@@ -27,7 +27,7 @@
 | Feature | Default hotkey | Note |
 | --- | --- | --- |
 | Drag | `Mod` + `Left Click` | Moves the window.<br>(has an option to focus a window automatically) |
-| Resize | `Mod` + `Right Click` | Grabs one of the corners to resize.<br>(has options to grab the closest window corner, or to snap the cursor to the corner). |
+| Resize | `Mod` + `Right Click` | Grabs one of the corners to resize.<br>(has options to grab the closest window corner,<br>or to snap the cursor to the corner). |
 | Toggle maximize | `Mod` + `Middle Click` | Toggles the window's maximize state. |
 | Minimize | Unbound | Minimizes the window. |
 | Send to bottom | Unbound | Sends the window under all the other windows. |
@@ -85,4 +85,4 @@ Wintamins is a new project, is in active development stage, and will be for quit
 - Improve performance even further, possibly shaving off CPU cycles.
 - Whatever **you** want! [Go ahead and tell me what you want in this project!](https://github.com/hateweb/Wintamins/issues) Or [send PRs...](https://github.com/hateweb/Wintamins/pulls)
 ---
-Thank you for reading this. 3nj0y d4 s0ftw4r3.
+Thank you for reading this. Enjoy the software.
