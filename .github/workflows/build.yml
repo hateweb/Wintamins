@@ -9,6 +9,16 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW32
+            arch: '32'
+            env_prefix: mingw-w64-i686
+          - msystem: UCRT64
+            arch: '64'
+            env_prefix: mingw-w64-ucrt-x86_64
 
     defaults:
       run:
@@ -21,22 +31,20 @@ jobs:
     - name: Set up dependencies
       uses: msys2/setup-msys2@v2
       with:
-        msystem: UCRT64
+        msystem: ${{ matrix.msystem }}
         update: true
         cache: true
         install: >-
           make
-          mingw-w64-ucrt-x86_64-clang
+          ${{ matrix.env_prefix }}-clang
 
     - name: Build
       run: |
-        make ARCH=64
-        make ARCH=32
+        mkdir -p out
+        make ARCH=${{matrix.arch}}
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: win-builds
-        path: |
-          ${{ github.workspace }}/out/Wintamins64.exe
-          ${{ github.workspace }}/out/Wintamins32.exe
+        name: win32-build-${{ matrix.arch }}
+        path: ${{ github.workspace }}/out/Wintamins${{ matrix.arch }}.exe
