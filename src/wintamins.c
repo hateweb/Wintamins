@@ -703,14 +703,12 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 		{
 			if (wparam == WM_KEYDOWN || wparam == WM_SYSKEYDOWN)
 			{
-				puts("hello");
 				mod_active = true;
 				init_mouse_hk();
 			}
 
 			else if (wparam == WM_KEYUP || wparam == WM_SYSKEYUP)
 			{
-				puts("goodbye");
 				mod_active = false;
 
 				if (state == ACTION_NONE)
