@@ -16,6 +16,17 @@ tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 const uint8_t max_tabs = sizeof(tabs) / sizeof(tab);
 uint8_t current_tab = 0;
 
+static const char* mod_names[] = {
+	"None", "Left Win", "Right Win", "Left Alt", "Right Alt"};
+static const uint8_t mod_names_size = sizeof(mod_names) / sizeof(mod_names[0]);
+
+static const char* act_names[] = {"Do nothing", "Move", "Resize",
+	"Toggle maximize", "Minimize", "Send to bottom", "Close"};
+static const uint8_t act_names_size = sizeof(act_names) / sizeof(act_names[0]);
+
+static const int key_ids[] = {IDC_LMB, IDC_MMB, IDC_RMB, IDC_M4, IDC_M5};
+static const int key_ids_size = sizeof(key_ids) / sizeof(key_ids[0]);
+
 static const uint8_t title_font_size = 20;
 static HFONT title_font;
 static HBRUSH backbrush;
@@ -349,33 +360,18 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 					i == 0 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
 
 			HWND modkey = GetDlgItem(tabs[1].hwnd, IDC_MODIFIER);
-			SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM) "Left Win");
-			SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM) "Right Win");
-			SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM) "Left Alt");
-			SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM) "Right Alt");
-			SendMessage(modkey, CB_SETCURSEL, 0, 0);
+			for (int i = 1; i < mod_names_size; i++)
+				SendMessage(modkey, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
 
 			HWND modkey2 = GetDlgItem(tabs[1].hwnd, IDC_MODIFIER2);
-			SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM) "None");
-			SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM) "Left Win");
-			SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM) "Right Win");
-			SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM) "Left Alt");
-			SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM) "Right Alt");
-			SendMessage(modkey2, CB_SETCURSEL, 0, 0);
+			for (int i = 0; i < mod_names_size; i++)
+				SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
 
-			int hello[] = {IDC_LMB, IDC_MMB, IDC_RMB, IDC_M4, IDC_M5};
-			int len = sizeof(hello) / sizeof(hello[0]);
-
-			for (int i = 0; i < len; i++)
+			for (int i = 0; i < key_ids_size; i++)
 			{
-				HWND item = GetDlgItem(tabs[1].hwnd, hello[i]);
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Do nothing");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Move");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Resize");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Toggle maximize");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Minimize");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Send to bottom");
-				SendMessage(item, CB_ADDSTRING, 0, (LPARAM) "Close");
+				HWND item = GetDlgItem(tabs[1].hwnd, key_ids[i]);
+				for (int j = 0; j < act_names_size; j++)
+					SendMessage(item, CB_ADDSTRING, 0, (LPARAM)act_names[j]);
 			}
 
 			revert_config();
@@ -405,13 +401,12 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 		case WM_TRAYICON:
 		{
-			switch (lparam)
+			if (lparam == WM_RBUTTONUP)
 			{
 				case WM_RBUTTONUP:
 					tray_menu(hwnd);
 					return TRUE;
 			}
-			break;
 		}
 
 		case WM_COMMAND:
@@ -484,7 +479,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 		}
 
 		case WM_CLOSE:
-			// Intercept window title-bar close ('X' button) and hide
 			ShowWindow(hwnd, SW_HIDE);
 			switch_tab(NULL, 0);
 			return TRUE;
