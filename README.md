@@ -31,6 +31,7 @@
 | Toggle maximize | `Mod` + `Middle Click` | Toggles the window's maximize state. |
 | Minimize | Unbound | Minimizes the window. |
 | Send to bottom | Unbound | Sends the window under all the other windows. |
+| Close | Unbound | Closes the window. |
 
 # Installing
 [Download](https://github.com/hateweb/Wintamins/releases) and run. The config file is created where the program lives.
@@ -46,10 +47,9 @@ Settings menu can be accessed by right-clicking the tray icon and choosing **Opt
 - compiledb (if you want proper `clangd` support)
 
 ### How to actually build
-**1.** `git clone` and `cd` into the build directory.
+**1.** `git clone` the repository.
 ```
-git clone https://github.com/hateweb/Wintamins.git
-cd Wintamins\out
+git clone https://github.com/hateweb/Wintamins.git && cd Wintamins
 ```
 **2.** Edit `Makefile` to match your compilers of choice.
 ```
@@ -59,16 +59,11 @@ nvim Makefile
   1  CC = clang
   2  RC = windres
 ```
-**3.** Uncomment the debug flags, if needed
-```
-  4  CFLAGS = -Wall -Wextra -g -O2 -mwindows -flto -MMD -MP
-  5  # CFLAGS = -O2 -mwindows -flto -MMD -MP
-```
-**4.** Build!
+**3.** Build!
 ```
 make
 ```
-**5.** Generate `compile_commands.json` for your LSP (optional)
+**4.** Generate `compile_commands.json` for your LSP. (optional)
 ```
 make compiledb
 ```
