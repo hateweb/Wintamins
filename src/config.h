@@ -20,6 +20,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum
+{
+	STATUS_ERROR,
+	STATUS_WARN,
+	STATUS_INFO
+};
+
 extern const int modkeys[];
 extern uint8_t modifier_key;
 extern uint8_t modifier_key2;
@@ -34,6 +41,10 @@ extern uint8_t action_mmb;
 extern uint8_t action_rmb;
 extern uint8_t action_m4;
 extern uint8_t action_m5;
+
+void open_log();
+void close_log();
+void log_msg(const int level, const char* fmt, ...);
 
 void ini_parse();
 void ini_write();

@@ -482,18 +482,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 					return TRUE;
 
-				case ID_TRAY_CON:
-					console_state = !console_state;
-					if (console_state)
-					{
-						ShowWindow(console_wnd, SW_SHOW);
-						SetForegroundWindow(console_wnd);
-					}
-					else
-						ShowWindow(console_wnd, SW_HIDE);
-
-					return TRUE;
-
 				case ID_TRAY_SHOW:
 					ShowWindow(hwnd, SW_SHOW);
 					SetForegroundWindow(hwnd);

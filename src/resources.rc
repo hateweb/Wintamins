@@ -135,8 +135,6 @@ BEGIN
     BEGIN
         MENUITEM "Enabled", ID_TRAY_ENABLED
         MENUITEM SEPARATOR
-        MENUITEM "Show Console", ID_TRAY_CON
-        MENUITEM SEPARATOR
         MENUITEM "Options", ID_TRAY_SHOW
         MENUITEM "About", ID_TRAY_ABOUT
         MENUITEM "Exit", ID_TRAY_EXIT

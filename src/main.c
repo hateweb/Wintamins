@@ -37,37 +37,12 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	if (lpcmdline && strlen(lpcmdline) > 0 && !strcmp(lpcmdline, "--elevated"))
 	{
 		elevate();
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
-	AllocConsole();
-	console_wnd = GetConsoleWindow();
-	if (!console_wnd)
-	{
-		printf("L%d -> failed to allocate console\n", __LINE__);
-		return 1;
-	}
-
-	ShowWindow(console_wnd, SW_HIDE);
-	SetWindowText(console_wnd, contitle);
-
-	HMENU menu = GetSystemMenu(console_wnd, FALSE);
-	if (!menu)
-	{
-		printf("L%d -> failed to get console menu\n", __LINE__);
-		return 1;
-	}
-
-	DeleteMenu(menu, SC_CLOSE, MF_BYCOMMAND);
-
-	FILE *f;
-	freopen_s(&f, "CONIN$", "r", stdin);
-	freopen_s(&f, "CONOUT$", "w", stdout);
-	freopen_s(&f, "CONOUT$", "w", stderr);
-
+	open_log();
 	ini_parse();
 	license_write();
-
 	autostart();
 
 	if (hide_titlebars)
@@ -94,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	cursor_resize_tl_br = LoadCursor(NULL, IDC_SIZENWSE);
 	cursor_resize_tr_bl = LoadCursor(NULL, IDC_SIZENESW);
 
-	WNDCLASS wnd_class = {0};
+	WNDCLASS wnd_class = {};
 	wnd_class.hIcon = icon_light;
 	wnd_class.lpfnWndProc = DefWindowProc;
 	wnd_class.hInstance = hinstance;
@@ -105,8 +80,9 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		MAKEINTRESOURCE(IDD_SETTINGS), NULL, dlg_proc, (LPARAM)hinstance);
 	if (!settings_dlg)
 	{
-		printf("L%d -> failed to create dialog\n", __LINE__);
-		return 1;
+		log_msg(STATUS_ERROR, "L%d -> failed to create dialog", __LINE__);
+		goodbye();
+		return EXIT_FAILURE;
 	}
 
 	ShowWindow(settings_dlg, SW_HIDE);
@@ -116,11 +92,12 @@ int WINAPI WinMain(HINSTANCE hinstance,
 
 	if (!hwnd)
 	{
-		printf("L%d -> failed to create window\n", __LINE__);
-		return 1;
+		log_msg(STATUS_ERROR, "L%d -> failed to create window", __LINE__);
+		goodbye();
+		return EXIT_FAILURE;
 	}
 
-	puts("initialized");
+	log_msg(STATUS_INFO, "started", __LINE__);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))

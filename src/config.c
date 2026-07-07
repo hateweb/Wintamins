@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <time.h>
 #include <windows.h>
 
 #include "resources.h"
@@ -96,10 +97,51 @@ uint8_t action_rmb = ACTION_RESIZE;
 uint8_t action_m4 = ACTION_NONE;
 uint8_t action_m5 = ACTION_NONE;
 
+FILE* log_file;
+
+const char* status[] = {"E", "W", "I"};
+
 const char* default_config =
 	"; "
 	"https://learn.microsoft.com/en-us/windows/win32/inputdev/"
 	"virtual-key-codes\n";
+
+void open_log()
+{
+	if (log_file != NULL)
+		return;
+
+	log_file = fopen("Wintamins.log", "a");
+}
+
+void close_log()
+{
+	if (log_file == NULL)
+		return;
+
+	fclose(log_file);
+	log_file = NULL;
+}
+
+void log_msg(const int level, const char* fmt, ...)
+{
+	if (log_file == NULL)
+		return;
+
+	char t_buf[80];
+	time_t t_raw = time(NULL);
+	struct tm* t_info = localtime(&t_raw);
+
+	strftime(t_buf, sizeof(t_buf), "%Y-%m-%d %H:%M:%S", t_info);
+	fprintf(log_file, "[%s] [%s] ", t_buf, status[level]);
+
+	va_list args;
+	va_start(args, fmt);
+	vfprintf(log_file, fmt, args);
+	va_end(args);
+
+	fprintf(log_file, "\n");
+}
 
 char* trim(char* str)
 {
@@ -148,7 +190,7 @@ void ini_parse()
 			ini_parse();
 		}
 		else
-			printf("L%d -> failed to open config file\n", __LINE__);
+			log_msg(STATUS_ERROR, "L%d -> failed to open config file", __LINE__);
 	}
 
 	char line[MAX_LINE_LEN];
@@ -180,7 +222,7 @@ void ini_write()
 	FILE* file = fopen("wintamins.ini", "w");
 	if (file == NULL)
 	{
-		printf("L%d -> failed to write config\n", __LINE__);
+		log_msg(STATUS_ERROR, "L%d -> failed to write config", __LINE__);
 		return;
 	}
 

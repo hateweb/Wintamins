@@ -189,11 +189,13 @@ void goodbye()
 {
 	restore();
 
-	// should be checked if it exists even...
-	Shell_NotifyIcon(NIM_DELETE, &tray_data);
+	if (tray_data.hWnd != NULL)
+		Shell_NotifyIcon(NIM_DELETE, &tray_data);
 
 	if (hk_win_ev)
 		UnhookWinEvent(hk_win_ev);
+
+	close_log();
 }
 
 void winkey()
@@ -240,7 +242,7 @@ bool elevate()
 
 	if (!ShellExecuteEx(&info))
 	{
-		printf("L%d -> failed to elevate\n", __LINE__);
+		log_msg(STATUS_ERROR, "L%d -> failed to elevate", __LINE__);
 		return false;
 	}
 	else
@@ -318,7 +320,7 @@ void init_win_event_hk()
 	hk_win_ev = SetWinEventHook(EVENT_OBJECT_SHOW, EVENT_OBJECT_SHOW, NULL,
 		&handle_win_ev, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 	if (!hk_win_ev)
-		printf("L%d -> failed to initialize event hook", __LINE__);
+		log_msg(STATUS_ERROR, "L%d -> failed to initialize event hook", __LINE__);
 }
 
 void destroy_win_event_hk()
@@ -660,7 +662,7 @@ void init_keyboard_hk()
 
 	hk_keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_proc, NULL, 0);
 	if (!hk_keyboard)
-		printf("L%d -> failed to initialize keyboard hook", __LINE__);
+		log_msg(STATUS_ERROR, "L%d -> failed to initialize keyboard hook", __LINE__);
 }
 
 void destroy_keyboard_hk()
@@ -679,7 +681,7 @@ void init_mouse_hk()
 
 	hk_mouse = SetWindowsHookEx(WH_MOUSE_LL, mouse_proc, NULL, 0);
 	if (!hk_mouse)
-		printf("L%d -> failed to initialize mouse hook", __LINE__);
+		log_msg(STATUS_ERROR, "L%d -> failed to initialize mouse hook", __LINE__);
 }
 
 void destroy_mouse_hk()

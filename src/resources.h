@@ -62,10 +62,9 @@
 // New IDs for the tray menu
 #define IDM_TRAYMENU 201
 #define ID_TRAY_ENABLED 2001
-#define ID_TRAY_CON 2002
-#define ID_TRAY_SHOW 2003
-#define ID_TRAY_ABOUT 2004
-#define ID_TRAY_EXIT 2005
+#define ID_TRAY_SHOW 2002
+#define ID_TRAY_ABOUT 2003
+#define ID_TRAY_EXIT 2004
 
 #define IDI_TRAYDARK 101
 #define IDI_TRAYLIGHT 102
