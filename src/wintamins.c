@@ -6,7 +6,7 @@
 #include <windows.h>
 
 #include "wintamins.h"
-#include "config.h"
+#include "io.h"
 #include "gui.h"
 
 #define VK_UNASSIGNED 0xE8
@@ -104,7 +104,7 @@ void override_style(HWND hwnd)
 
 	LONG_PTR style_override = original_style;
 
-	if (hide_titlebars)
+	if (cfg.hide_titlebars)
 		style_override &= ~WS_CAPTION;
 
 	if (style_override == original_style)
@@ -219,6 +219,7 @@ void goodbye()
 		drag_work_ev = NULL;
 	}
 
+	log_msg(STATUS_INFO, "finished");
 	close_log();
 }
 
@@ -266,7 +267,7 @@ bool elevate()
 
 	if (!ShellExecuteEx(&info))
 	{
-		log_msg(STATUS_ERROR, "L%d -> failed to elevate", __LINE__);
+		log_msg(STATUS_ERROR, "failed to elevate");
 		return false;
 	}
 	else
@@ -280,7 +281,7 @@ bool elevate()
 void autostart()
 {
 	HKEY key;
-	if (!add_to_autostart)
+	if (!cfg.add_to_autostart)
 	{
 		if (RegOpenKeyEx(HKEY_CURRENT_USER,
 			"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
@@ -296,7 +297,7 @@ void autostart()
 	if (!GetModuleFileName(NULL, path, MAX_PATH))
 		return;
 
-	if (autostart_as_admin)
+	if (cfg.autostart_as_admin)
 		strcat(path, " --elevated");
 
 	if (RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
@@ -344,7 +345,7 @@ void init_win_event_hk()
 	hk_win_ev = SetWinEventHook(EVENT_OBJECT_SHOW, EVENT_OBJECT_SHOW, NULL,
 		&handle_win_ev, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 	if (!hk_win_ev)
-		log_msg(STATUS_ERROR, "L%d -> failed to initialize event hook", __LINE__);
+		log_msg(STATUS_ERROR, "failed to initialize event hook");
 }
 
 void destroy_win_event_hk()
@@ -441,7 +442,7 @@ void begin_resize()
 
 	int dir = CORNER_BOTTOMRIGHT;
 	HCURSOR* cur = &cursor_resize_tl_br;
-	if (closest_corner_on_resize)
+	if (cfg.closest_corner_on_resize)
 	{
 		double dx_l = (double)mouse_start.x - window_start.left;
 		double dx_r = (double)mouse_start.x - window_start.right;
@@ -478,7 +479,7 @@ void begin_resize()
 
 	state = ACTION_RESIZE;
 
-	if (snap_cursor_on_resize)
+	if (cfg.snap_cursor_on_resize)
 	{
 		int x = (dir == CORNER_TOPLEFT || dir == CORNER_BOTTOMLEFT)
 					? window_start.left
@@ -562,7 +563,7 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 
 	target_wnd = root_hwnd;
 
-	if (focus_window_on_drag)
+	if (cfg.focus_window_on_drag)
 		SetForegroundWindow(root_hwnd);
 
 	mouse_start = pt;
@@ -570,18 +571,18 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 
 	// this is so bad...
 	if (wparam == WM_LBUTTONDOWN)
-		click_logic(&wp, action_lmb);
+		click_logic(&wp, cfg.action_lmb);
 	else if (wparam == WM_MBUTTONDOWN)
-		click_logic(&wp, action_mmb);
+		click_logic(&wp, cfg.action_mmb);
 	else if (wparam == WM_RBUTTONDOWN)
-		click_logic(&wp, action_rmb);
+		click_logic(&wp, cfg.action_rmb);
 	else if (wparam == WM_XBUTTONDOWN)
 	{
 		WORD xbutton = HIWORD(p_mouse_struct->mouseData);
 		if (xbutton == XBUTTON1)
-			click_logic(&wp, action_m4);
+			click_logic(&wp, cfg.action_m4);
 		else if (xbutton == XBUTTON2)
-			click_logic(&wp, action_m5);
+			click_logic(&wp, cfg.action_m5);
 	}
 	else if (wparam == WM_MOUSEWHEEL)
 	{
@@ -635,20 +636,20 @@ unsigned __stdcall drag_thread(void* arg)
 
 bool any_key_down(WPARAM wparam)
 {
-	return (wparam == WM_LBUTTONDOWN && action_lmb != ACTION_NONE) ||
-		   (wparam == WM_MBUTTONDOWN && action_mmb != ACTION_NONE) ||
-		   (wparam == WM_RBUTTONDOWN && action_rmb != ACTION_NONE) ||
+	return (wparam == WM_LBUTTONDOWN && cfg.action_lmb != ACTION_NONE) ||
+		   (wparam == WM_MBUTTONDOWN && cfg.action_mmb != ACTION_NONE) ||
+		   (wparam == WM_RBUTTONDOWN && cfg.action_rmb != ACTION_NONE) ||
 		   (wparam == WM_XBUTTONDOWN &&
-			   (action_m4 != ACTION_NONE || action_m5 != ACTION_NONE));
+			   (cfg.action_m4 != ACTION_NONE || cfg.action_m5 != ACTION_NONE));
 }
 
 bool any_key_up(WPARAM wparam)
 {
-	return (wparam == WM_LBUTTONUP && action_lmb != ACTION_NONE) ||
-		   (wparam == WM_MBUTTONUP && action_mmb != ACTION_NONE) ||
-		   (wparam == WM_RBUTTONUP && action_rmb != ACTION_NONE) ||
+	return (wparam == WM_LBUTTONUP && cfg.action_lmb != ACTION_NONE) ||
+		   (wparam == WM_MBUTTONUP && cfg.action_mmb != ACTION_NONE) ||
+		   (wparam == WM_RBUTTONUP && cfg.action_rmb != ACTION_NONE) ||
 		   (wparam == WM_XBUTTONUP &&
-			   (action_m4 != ACTION_NONE || action_m5 != ACTION_NONE));
+			   (cfg.action_m4 != ACTION_NONE || cfg.action_m5 != ACTION_NONE));
 }
 
 LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
@@ -673,18 +674,18 @@ LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
 	else if (any_key_up(wparam) && state != ACTION_NONE)
 	{
 		if (wparam == WM_LBUTTONUP)
-			release_logic(action_lmb, mouse_struct);
+			release_logic(cfg.action_lmb, mouse_struct);
 		else if (wparam == WM_MBUTTONUP)
-			release_logic(action_mmb, mouse_struct);
+			release_logic(cfg.action_mmb, mouse_struct);
 		else if (wparam == WM_RBUTTONUP)
-			release_logic(action_rmb, mouse_struct);
+			release_logic(cfg.action_rmb, mouse_struct);
 		else if (wparam == WM_XBUTTONUP)
 		{
 			WORD xbutton = HIWORD(mouse_struct->mouseData);
 			if (xbutton == XBUTTON1)
-				release_logic(action_m4, mouse_struct);
+				release_logic(cfg.action_m4, mouse_struct);
 			else if (xbutton == XBUTTON2)
-				release_logic(action_m5, mouse_struct);
+				release_logic(cfg.action_m5, mouse_struct);
 		}
 
 		return 1;
@@ -699,7 +700,7 @@ void init_keyboard_hk()
 
 	hk_keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_proc, NULL, 0);
 	if (!hk_keyboard)
-		log_msg(STATUS_ERROR, "L%d -> failed to initialize keyboard hook", __LINE__);
+		log_msg(STATUS_ERROR, "failed to initialize keyboard hook");
 }
 
 void destroy_keyboard_hk()
@@ -718,7 +719,7 @@ void init_mouse_hk()
 
 	hk_mouse = SetWindowsHookEx(WH_MOUSE_LL, mouse_proc, NULL, 0);
 	if (!hk_mouse)
-		log_msg(STATUS_ERROR, "L%d -> failed to initialize mouse hook", __LINE__);
+		log_msg(STATUS_ERROR, "failed to initialize mouse hook");
 }
 
 void destroy_mouse_hk()
@@ -736,8 +737,8 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 	{
 		KBDLLHOOKSTRUCT* pKey = (KBDLLHOOKSTRUCT*)lparam;
 
-		if (pKey->vkCode == (DWORD)modkeys[modifier_key + 1] ||
-			(modifier_key2 != 0 ? pKey->vkCode == (DWORD)modkeys[modifier_key2]
+		if (pKey->vkCode == (DWORD)modkeys[cfg.modifier_key + 1] ||
+			(cfg.modifier_key2 != 0 ? pKey->vkCode == (DWORD)modkeys[cfg.modifier_key2]
 								: false))
 		{
 			if (wparam == WM_KEYDOWN || wparam == WM_SYSKEYDOWN)

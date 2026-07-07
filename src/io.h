@@ -20,6 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <windows.h>
+
 enum
 {
 	STATUS_ERROR,
@@ -27,20 +29,49 @@ enum
 	STATUS_INFO
 };
 
+typedef struct
+{
+	bool focus_window_on_drag;
+	bool closest_corner_on_resize;
+	bool snap_cursor_on_resize;
+	bool hide_titlebars;
+	bool add_to_autostart;
+	bool autostart_as_admin;
+	uint8_t modifier_key;
+	uint8_t modifier_key2;
+	uint8_t action_lmb;
+	uint8_t action_mmb;
+	uint8_t action_rmb;
+	uint8_t action_m4;
+	uint8_t action_m5;
+} config;
+
+extern config cfg;
+
+typedef enum
+{
+	CFG_BOOL,
+	CFG_UINT8
+} config_t;
+
+typedef struct
+{
+	const char* name;
+	config_t t;
+	void* value_ptr;
+	union
+	{
+		bool b;
+		uint8_t u8;
+	} def;
+	int id;
+	HWND* tab;
+} config_e;
+
+extern const config_e entries[];
+extern const int entries_size;
+
 extern const int modkeys[];
-extern uint8_t modifier_key;
-extern uint8_t modifier_key2;
-extern bool focus_window_on_drag;
-extern bool closest_corner_on_resize;
-extern bool snap_cursor_on_resize;
-extern bool hide_titlebars;
-extern bool add_to_autostart;
-extern bool autostart_as_admin;
-extern uint8_t action_lmb;
-extern uint8_t action_mmb;
-extern uint8_t action_rmb;
-extern uint8_t action_m4;
-extern uint8_t action_m5;
 
 void open_log();
 void close_log();

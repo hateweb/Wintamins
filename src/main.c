@@ -23,7 +23,7 @@
 #include <commctrl.h>
 
 #include "resources.h"
-#include "config.h"
+#include "io.h"
 #include "gui.h"
 #include "wintamins.h"
 
@@ -46,7 +46,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	license_write();
 	autostart();
 
-	if (hide_titlebars)
+	if (cfg.hide_titlebars)
 	{
 		EnumWindows(enum_win_proc, 0);
 		init_win_event_hk();
@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		MAKEINTRESOURCE(IDD_SETTINGS), NULL, dlg_proc, (LPARAM)hinstance);
 	if (!settings_dlg)
 	{
-		log_msg(STATUS_ERROR, "L%d -> failed to create dialog", __LINE__);
+		log_msg(STATUS_ERROR, "failed to create dialog");
 		goodbye();
 		return EXIT_FAILURE;
 	}
@@ -111,12 +111,12 @@ int WINAPI WinMain(HINSTANCE hinstance,
 
 	if (!hwnd)
 	{
-		log_msg(STATUS_ERROR, "L%d -> failed to create window", __LINE__);
+		log_msg(STATUS_ERROR, "failed to create window");
 		goodbye();
 		return EXIT_FAILURE;
 	}
 
-	log_msg(STATUS_INFO, "started", __LINE__);
+	log_msg(STATUS_INFO, "started");
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))

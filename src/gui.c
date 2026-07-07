@@ -6,7 +6,7 @@
 
 #include "resources.h"
 #include "gui.h"
-#include "config.h"
+#include "io.h"
 #include "wintamins.h"
 
 #define WM_TRAYICON (WM_APP + 1)
@@ -157,30 +157,26 @@ void set_combo_value(HWND tab, int id, int v)
 
 void apply_config()
 {
-	const HWND hwnd_general = tabs[0].hwnd;
-	const HWND hwnd_mouse = tabs[1].hwnd;
-
-	if (hwnd_general && hwnd_mouse)
+	if (tabs[0].hwnd && tabs[1].hwnd)
 	{
-		focus_window_on_drag =
-			IsDlgButtonChecked(hwnd_general, IDC_FOCUSWINDOW) == BST_CHECKED;
-		closest_corner_on_resize =
-			IsDlgButtonChecked(hwnd_general, IDC_CLOSESTCORNER) == BST_CHECKED;
-		snap_cursor_on_resize =
-			IsDlgButtonChecked(hwnd_general, IDC_SNAPCURSOR) == BST_CHECKED;
-		hide_titlebars =
-			IsDlgButtonChecked(hwnd_general, IDC_HIDEBARS) == BST_CHECKED;
-		add_to_autostart =
-			IsDlgButtonChecked(hwnd_general, IDC_AUTOSTART) == BST_CHECKED;
-		autostart_as_admin =
-			IsDlgButtonChecked(hwnd_general, IDC_AUTOSTARTADMIN) == BST_CHECKED;
-		modifier_key = get_combo_value(hwnd_mouse, IDC_MODIFIER);
-		modifier_key2 = get_combo_value(hwnd_mouse, IDC_MODIFIER2);
-		action_lmb = get_combo_value(hwnd_mouse, IDC_LMB);
-		action_mmb = get_combo_value(hwnd_mouse, IDC_MMB);
-		action_rmb = get_combo_value(hwnd_mouse, IDC_RMB);
-		action_m4 = get_combo_value(hwnd_mouse, IDC_M4);
-		action_m5 = get_combo_value(hwnd_mouse, IDC_M5);
+		for (size_t i = 0; i < entries_size; i++)
+		{
+			// too much table lookup. would this help?
+			config_e entry = entries[i];
+
+			if (entry.t == CFG_BOOL)
+			{
+				*(bool*)entry.value_ptr =
+					IsDlgButtonChecked(*entry.tab, entry.id) ==
+					BST_CHECKED;
+			}
+			
+			else if (entry.t == CFG_UINT8)
+			{
+				*(uint8_t*)entry.value_ptr =
+					get_combo_value(*entry.tab, entry.id);
+			}
+		}
 	}
 
 	ini_write();
@@ -188,7 +184,7 @@ void apply_config()
 	restore();
 	autostart();
 
-	if (hide_titlebars)
+	if (cfg.hide_titlebars)
 	{
 		if (!hk_win_ev)
 			init_win_event_hk();
@@ -204,32 +200,21 @@ void apply_config()
 
 void revert_config()
 {
-	const HWND hwnd_general = tabs[0].hwnd;
-	const HWND hwnd_mouse = tabs[1].hwnd;
-
-	if (!hwnd_general || !hwnd_mouse)
+	if (!tabs[0].hwnd || !tabs[1].hwnd)
 		return;
 
-	CheckDlgButton(hwnd_general, IDC_FOCUSWINDOW,
-		focus_window_on_drag ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_CLOSESTCORNER,
-		closest_corner_on_resize ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_SNAPCURSOR,
-		snap_cursor_on_resize ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_HIDEBARS,
-		hide_titlebars ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_AUTOSTART,
-		add_to_autostart ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hwnd_general, IDC_AUTOSTARTADMIN,
-		autostart_as_admin ? BST_CHECKED : BST_UNCHECKED);
+	for (size_t i = 0; i < entries_size; i++)
+	{
+		// too much table lookup. would this help?
+		config_e entry = entries[i];
 
-	set_combo_value(hwnd_mouse, IDC_MODIFIER, modifier_key);
-	set_combo_value(hwnd_mouse, IDC_MODIFIER2, modifier_key2);
-	set_combo_value(hwnd_mouse, IDC_LMB, action_lmb);
-	set_combo_value(hwnd_mouse, IDC_MMB, action_mmb);
-	set_combo_value(hwnd_mouse, IDC_RMB, action_rmb);
-	set_combo_value(hwnd_mouse, IDC_M4, action_m4);
-	set_combo_value(hwnd_mouse, IDC_M5, action_m5);
+		if (entry.t == CFG_BOOL)
+			CheckDlgButton(*entry.tab, entry.id,
+				*(bool*)entry.value_ptr ? BST_CHECKED : BST_UNCHECKED);
+
+		else if (entry.t == CFG_UINT8)
+			set_combo_value(*entry.tab, entry.id, *(uint8_t*)entry.value_ptr);
+	}
 }
 
 bool is_light_mode()
@@ -383,7 +368,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 			}
 
 			revert_config();
-
 			return TRUE;
 		}
 
@@ -462,7 +446,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 					{
 						init_keyboard_hk();
 
-						if (hide_titlebars)
+						if (cfg.hide_titlebars)
 						{
 							init_win_event_hk();
 							EnumWindows(enum_win_proc, 0);
@@ -473,7 +457,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 						destroy_keyboard_hk();
 						destroy_mouse_hk();
 
-						if (hide_titlebars)
+						if (cfg.hide_titlebars)
 						{
 							restore();
 							destroy_win_event_hk();
