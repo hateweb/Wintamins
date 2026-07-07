@@ -141,6 +141,9 @@ void log_msg(const int level, const char* fmt, ...)
 	va_end(args);
 
 	fprintf(log_file, "\n");
+
+	if (level == STATUS_ERROR)
+		fflush(log_file);
 }
 
 char* trim(char* str)
