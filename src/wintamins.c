@@ -43,11 +43,17 @@ bool mod_active = false;
 bool was_maximized = false;
 
 HWND target_wnd;
-POINT mouse_start;
 RECT window_start;
+
+POINT mouse_start;
+POINT mouse_current;
 
 HHOOK hk_mouse;
 HHOOK hk_keyboard;
+
+HANDLE drag_work_ev;
+HANDLE drag_thread_h;
+volatile int run_thread = 1;
 
 const char* whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
 	"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
@@ -194,6 +200,24 @@ void goodbye()
 
 	if (hk_win_ev)
 		UnhookWinEvent(hk_win_ev);
+
+	run_thread = 0;
+
+	if (drag_work_ev != NULL)
+		SetEvent(drag_work_ev);
+
+	if (drag_thread_h != NULL)
+	{
+		WaitForSingleObject(drag_thread_h, INFINITE);
+		CloseHandle(drag_thread_h);
+		drag_thread_h = NULL;
+	}
+
+	if (drag_work_ev != NULL)
+	{
+		CloseHandle(drag_work_ev);
+		drag_work_ev = NULL;
+	}
 
 	close_log();
 }
@@ -571,14 +595,12 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	return true;
 }
 
-void drag(MSLLHOOKSTRUCT* mouse_struct)
+void drag()
 {
 	int x, y;
 
-	POINT pt = mouse_struct->pt;
-
-	int dx = pt.x - mouse_start.x;
-	int dy = pt.y - mouse_start.y;
+	int dx = mouse_current.x - mouse_start.x;
+	int dy = mouse_current.y - mouse_start.y;
 
 	if (was_maximized)
 	{
@@ -586,8 +608,8 @@ void drag(MSLLHOOKSTRUCT* mouse_struct)
 		RECT rect_out;
 		get_unmax_bounds(target_wnd, &rect_out);
 
-		x = pt.x - (rect_out.right - rect_out.left) / 2;
-		y = pt.y - (rect_out.bottom - rect_out.top) / 2;
+		x = mouse_current.x - (rect_out.right - rect_out.left) / 2;
+		y = mouse_current.y - (rect_out.bottom - rect_out.top) / 2;
 	}
 	else
 	{
@@ -597,6 +619,18 @@ void drag(MSLLHOOKSTRUCT* mouse_struct)
 
 	SetWindowPos(target_wnd, NULL, x, y, 0, 0,
 		SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
+unsigned __stdcall drag_thread(void* arg)
+{
+	while (run_thread)
+	{
+		DWORD wait_result = WaitForSingleObject(drag_work_ev, INFINITE);
+		if (wait_result == WAIT_OBJECT_0 && run_thread)
+			drag();
+	}
+
+	return 0;
 }
 
 bool any_key_down(WPARAM wparam)
@@ -631,7 +665,10 @@ LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
 		return 1;
 
 	if (wparam == WM_MOUSEMOVE && target_wnd && state == ACTION_DRAG)
-		drag(mouse_struct);
+	{
+		mouse_current = mouse_struct->pt;
+		SetEvent(drag_work_ev);
+	}
 
 	else if (any_key_up(wparam) && state != ACTION_NONE)
 	{

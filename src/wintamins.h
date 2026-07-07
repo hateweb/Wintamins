@@ -38,6 +38,9 @@ extern HHOOK hk_keyboard;
 
 extern HWINEVENTHOOK hk_win_ev;
 
+extern HANDLE drag_work_ev;
+extern HANDLE drag_thread_h;
+
 bool compare(HWND hwnd);
 void override_style(HWND hwnd);
 void adjust_wnd_rect(HWND hwnd,
@@ -52,6 +55,7 @@ void goodbye();
 void winkey();
 bool elevate();
 void autostart();
+unsigned __stdcall drag_thread(void* arg);
 void init_win_event_hk();
 void destroy_win_event_hk();
 void init_keyboard_hk();

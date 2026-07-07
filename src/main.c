@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include <windows.h>
+#include <process.h>
 #include <commctrl.h>
 
 #include "resources.h"
@@ -51,6 +52,24 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		init_win_event_hk();
 	}
 
+	drag_work_ev = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (drag_work_ev == NULL)
+	{
+		log_msg(STATUS_ERROR, "failed to create drag event");
+		goodbye();
+		return EXIT_FAILURE;
+	}
+
+	unsigned thread_id;
+	drag_thread_h = (HANDLE)_beginthreadex(NULL, 0, &drag_thread, NULL, 0, &thread_id);
+
+	if (drag_thread_h == 0)
+	{
+		log_msg(STATUS_ERROR, "failed to begin drag thread");
+		goodbye();
+		return EXIT_FAILURE;
+	}
+	
 	init_keyboard_hk();
 
 	INITCOMMONCONTROLSEX iccx;
