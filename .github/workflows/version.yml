@@ -1,5 +1,6 @@
 name: Upload version to different repo
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
