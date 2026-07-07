@@ -60,7 +60,7 @@ int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
 bool compare(HWND hwnd)
 {
 	char class[256];
-	GetClassNameA(hwnd, class, sizeof(class));
+	GetClassName(hwnd, class, sizeof(class));
 
 	for (int i = 0; i < wl_size; i++)
 		if (!strcmp(whitelist[i], class))
@@ -79,19 +79,19 @@ void override_style(HWND hwnd)
 	// if (GetParent(hwnd))
 	//   return;
 
-	LONG_PTR exstyle = GetWindowLongPtrA(hwnd, GWL_EXSTYLE);
+	LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 	if ((exstyle & WS_EX_TOOLWINDOW) || (exstyle & WS_EX_NOACTIVATE))
 		return;
 
-	LONG_PTR original_style = GetWindowLongPtrA(hwnd, GWL_STYLE);
+	LONG_PTR original_style = GetWindowLongPtr(hwnd, GWL_STYLE);
 	if (original_style & WS_CHILD)
 		return;
 
-	if (!GetWindowTextLengthA(hwnd))
+	if (!GetWindowTextLength(hwnd))
 		return;
 
 	char class[256];
-	GetClassNameA(hwnd, class, sizeof(class));
+	GetClassName(hwnd, class, sizeof(class));
 
 	if (compare(hwnd))
 		return;
@@ -108,7 +108,7 @@ void override_style(HWND hwnd)
 	tracked_wnds[tracked_count].original_style = original_style;
 	tracked_count++;
 
-	SetWindowLongPtrA(hwnd, GWL_STYLE, style_override);
+	SetWindowLongPtr(hwnd, GWL_STYLE, style_override);
 	SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
 			SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
@@ -125,7 +125,7 @@ void adjust_wnd_rect(HWND hwnd,
 	RECT rect_from = {0, 0, 100, 100};
 	RECT rect_to = {0, 0, 100, 100};
 
-	LONG_PTR ex_style = GetWindowLongPtrA(hwnd, GWL_EXSTYLE);
+	LONG_PTR ex_style = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
 	BOOL has_menu = GetMenu(hwnd) != NULL;
 
 	AdjustWindowRectEx(
@@ -151,14 +151,14 @@ void restore()
 		// the weird size thing doesn't affect minimized/maximized apps.
 		if (IsZoomed(hwnd) || IsIconic(hwnd))
 		{
-			SetWindowLongPtrA(hwnd, GWL_STYLE, original_style);
+			SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
 			SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
 				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
 					SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
 		}
 		else
 		{
-			LONG_PTR current_style = GetWindowLongPtrA(hwnd, GWL_STYLE);
+			LONG_PTR current_style = GetWindowLongPtr(hwnd, GWL_STYLE);
 
 			RECT rect;
 			GetWindowRect(hwnd, &rect);
@@ -175,7 +175,7 @@ void restore()
 			int new_w = (rect.right - rect.left) + (d_right - d_left);
 			int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
 
-			SetWindowLongPtrA(hwnd, GWL_STYLE, original_style);
+			SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
 			SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
 				SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED |
 					SWP_ASYNCWINDOWPOS);
@@ -190,7 +190,7 @@ void goodbye()
 	restore();
 
 	// should be checked if it exists even...
-	Shell_NotifyIconA(NIM_DELETE, &tray_data);
+	Shell_NotifyIcon(NIM_DELETE, &tray_data);
 
 	if (hk_win_ev)
 		UnhookWinEvent(hk_win_ev);
@@ -213,7 +213,7 @@ void winkey()
 bool elevate()
 {
 	char path[MAX_PATH];
-	if (!GetModuleFileNameA(NULL, path, MAX_PATH))
+	if (!GetModuleFileName(NULL, path, MAX_PATH))
 		return false;
 
 	bool elevated = false;
@@ -238,7 +238,7 @@ bool elevate()
 	info.lpFile = path;
 	info.nShow = SW_NORMAL;
 
-	if (!ShellExecuteExA(&info))
+	if (!ShellExecuteEx(&info))
 	{
 		printf("L%d -> failed to elevate\n", __LINE__);
 		return false;
@@ -256,34 +256,34 @@ void autostart()
 	HKEY key;
 	if (!add_to_autostart)
 	{
-		if (RegOpenKeyExA(HKEY_CURRENT_USER,
+		if (RegOpenKeyEx(HKEY_CURRENT_USER,
 			"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
 			KEY_SET_VALUE, &key) == ERROR_SUCCESS)
 		{
-			RegDeleteValueA(key, name);
+			RegDeleteValue(key, name);
 			RegCloseKey(key);
 		}
 		return;
 	}
 
 	char path[MAX_PATH];
-	if (!GetModuleFileNameA(NULL, path, MAX_PATH))
+	if (!GetModuleFileName(NULL, path, MAX_PATH))
 		return;
 
 	if (autostart_as_admin)
 		strcat(path, " --elevated");
 
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
 	{
 		char buffer[MAX_PATH];
 		DWORD buffer_sz = sizeof(buffer);
 
 		LONG query_status =
-			RegQueryValueExA(key, name, NULL, NULL, (LPBYTE)buffer, &buffer_sz);
+			RegQueryValueEx(key, name, NULL, NULL, (LPBYTE)buffer, &buffer_sz);
 
 		if (query_status != ERROR_SUCCESS || strcmp(path, buffer) != 0)
 		{
-			RegSetValueExA(key, name, 0, REG_SZ, (const BYTE*)path,
+			RegSetValueEx(key, name, 0, REG_SZ, (const BYTE*)path,
 				(DWORD)(strlen(path) + 1));
 		}
 

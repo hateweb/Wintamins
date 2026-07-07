@@ -101,7 +101,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	wnd_class.lpszClassName = name;
 	RegisterClass(&wnd_class);
 
-	HWND settings_dlg = CreateDialogParamA(hinstance,
+	HWND settings_dlg = CreateDialogParam(hinstance,
 		MAKEINTRESOURCE(IDD_SETTINGS), NULL, dlg_proc, (LPARAM)hinstance);
 	if (!settings_dlg)
 	{

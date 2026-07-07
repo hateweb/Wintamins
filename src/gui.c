@@ -263,7 +263,7 @@ void setup_tray(HWND hwnd, bool update)
 	tray_data.hIcon = is_light_mode() ? icon_dark : icon_light;
 	snprintf(tray_data.szTip, sizeof(tray_data.szTip), "%s", name);
 
-	Shell_NotifyIconA(update ? NIM_MODIFY : NIM_ADD, &tray_data);
+	Shell_NotifyIcon(update ? NIM_MODIFY : NIM_ADD, &tray_data);
 }
 
 void tray_menu(HWND hwnd)
@@ -316,7 +316,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 		{
 			backbrush = CreateSolidBrush(RGB(249, 249, 249));
 
-			title_font = CreateFontA(title_font_size, 0, 0, 0, FW_NORMAL, FALSE,
+			title_font = CreateFont(title_font_size, 0, 0, 0, FW_NORMAL, FALSE,
 				FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
 				CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 				DEFAULT_PITCH | FF_DONTCARE, "MS Shell Dlg");
