@@ -40,21 +40,32 @@ bool config_created = false;
 config cfg;
 
 const config_e entries[] = {
-	{"focus_window_on_drag", CFG_BOOL, &cfg.focus_window_on_drag, {.b = true}, IDC_FOCUSWINDOW, &tabs[0].hwnd},
+	{"focus_window_on_drag", CFG_BOOL, &cfg.focus_window_on_drag, {.b = true},
+		IDC_FOCUSWINDOW, &tabs[0].hwnd},
 	{"closest_corner_on_resize", CFG_BOOL, &cfg.closest_corner_on_resize,
 		{.b = true}, IDC_CLOSESTCORNER, &tabs[0].hwnd},
 	{"snap_cursor_on_resize", CFG_BOOL, &cfg.snap_cursor_on_resize,
 		{.b = false}, IDC_SNAPCURSOR, &tabs[0].hwnd},
-	{"hide_titlebars", CFG_BOOL, &cfg.hide_titlebars, {.b = false}, IDC_HIDEBARS, &tabs[0].hwnd},
-	{"add_to_autostart", CFG_BOOL, &cfg.add_to_autostart, {.b = false}, IDC_AUTOSTART, &tabs[0].hwnd},
-	{"autostart_as_admin", CFG_BOOL, &cfg.autostart_as_admin, {.b = false}, IDC_AUTOSTARTADMIN, &tabs[0].hwnd},
-	{"modifier_key", CFG_UINT8, &cfg.modifier_key, {.u8 = 0}, IDC_MODIFIER, &tabs[1].hwnd},
-	{"modifier_key2", CFG_UINT8, &cfg.modifier_key2, {.u8 = 0}, IDC_MODIFIER2, &tabs[1].hwnd},
-	{"action_lmb", CFG_UINT8, &cfg.action_lmb, {.u8 = ACTION_DRAG}, IDC_LMB, &tabs[1].hwnd},
-	{"action_mmb", CFG_UINT8, &cfg.action_mmb, {.u8 = ACTION_MAXIMIZE}, IDC_MMB, &tabs[1].hwnd},
-	{"action_rmb", CFG_UINT8, &cfg.action_rmb, {.u8 = ACTION_RESIZE}, IDC_RMB, &tabs[1].hwnd},
-	{"action_m4", CFG_UINT8, &cfg.action_rmb, {.u8 = ACTION_NONE}, IDC_M4, &tabs[1].hwnd},
-	{"action_m5", CFG_UINT8, &cfg.action_rmb, {.u8 = ACTION_NONE}, IDC_M5, &tabs[1].hwnd},
+	{"hide_titlebars", CFG_BOOL, &cfg.hide_titlebars, {.b = false},
+		IDC_HIDEBARS, &tabs[0].hwnd},
+	{"add_to_autostart", CFG_BOOL, &cfg.add_to_autostart, {.b = false},
+		IDC_AUTOSTART, &tabs[0].hwnd},
+	{"autostart_as_admin", CFG_BOOL, &cfg.autostart_as_admin, {.b = false},
+		IDC_AUTOSTARTADMIN, &tabs[0].hwnd},
+	{"modifier_key", CFG_UINT8, &cfg.modifier_key, {.u8 = 0}, IDC_MODIFIER,
+		&tabs[1].hwnd},
+	{"modifier_key2", CFG_UINT8, &cfg.modifier_key2, {.u8 = 0}, IDC_MODIFIER2,
+		&tabs[1].hwnd},
+	{"action_lmb", CFG_UINT8, &cfg.action_lmb, {.u8 = ACTION_DRAG}, IDC_LMB,
+		&tabs[1].hwnd},
+	{"action_mmb", CFG_UINT8, &cfg.action_mmb, {.u8 = ACTION_MAXIMIZE}, IDC_MMB,
+		&tabs[1].hwnd},
+	{"action_rmb", CFG_UINT8, &cfg.action_rmb, {.u8 = ACTION_RESIZE}, IDC_RMB,
+		&tabs[1].hwnd},
+	{"action_m4", CFG_UINT8, &cfg.action_m4, {.u8 = ACTION_NONE}, IDC_M4,
+		&tabs[1].hwnd},
+	{"action_m5", CFG_UINT8, &cfg.action_m5, {.u8 = ACTION_NONE}, IDC_M5,
+		&tabs[1].hwnd},
 };
 
 const int entries_size = sizeof(entries) / sizeof(entries[0]);
@@ -127,7 +138,7 @@ void reset_config()
 	{
 		if (entries[i].t == CFG_BOOL)
 			*(bool*)entries[i].value_ptr = entries[i].def.b;
-		
+
 		else if (entries[i].t == CFG_UINT8)
 			*(uint8_t*)entries[i].value_ptr = entries[i].def.u8;
 	}
