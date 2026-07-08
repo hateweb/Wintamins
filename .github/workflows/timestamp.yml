@@ -1,0 +1,40 @@
+name: Push commit timestamp to website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  push-timestamp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v7
+        with:
+          repository: 'hateweb/hateweb.github.io'
+          token: ${{ secrets.TARGET_REPO_PAT }}
+          ref: 'main'
+
+      - name: Generate timestamp
+        run: |
+          TIMESTAMP=$(date +%s)
+          echo "Current timestamp in seconds: $TIMESTAMP"
+          echo "$TIMESTAMP" > timestamp.txt
+
+      # Step 3: Configure Git, commit, and push
+      - name: Commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add commit.txt
+          
+          # Only commit and push if the timestamp value actually changed
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update timestamp to $(date +%s)"
+            git push origin main
+          else
+            echo "No changes detected"
+          fi
