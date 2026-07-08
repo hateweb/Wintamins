@@ -22,7 +22,7 @@ jobs:
         run: |
           TIMESTAMP=$(date +%s)
           echo "Current timestamp in seconds: $TIMESTAMP"
-          echo "$TIMESTAMP" > timestamp.txt
+          echo "$TIMESTAMP" > commit.txt
 
       # Step 3: Configure Git, commit, and push
       - name: Commit and push
