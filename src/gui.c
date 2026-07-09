@@ -12,6 +12,7 @@
 #define WM_TRAYICON (WM_APP + 1)
 
 bool master_switch = true;
+bool hide_tray = false;
 
 tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 	{"About", NULL, IDD_ABOUT}};
@@ -229,6 +230,9 @@ bool is_light_mode()
 
 void setup_tray(HWND hwnd, int msg)
 {
+	if (hide_tray)
+		return;
+
 	tray_data.cbSize = sizeof(NOTIFYICONDATAA);
 	tray_data.hWnd = hwnd;
 	tray_data.uID = 1;

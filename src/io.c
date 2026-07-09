@@ -50,6 +50,8 @@ const config_e entries[] = {
 		IDC_HIDEBARS, &tabs[0].hwnd},
 	{"add_to_autostart", CFG_BOOL, &cfg.add_to_autostart, {.b = false},
 		IDC_AUTOSTART, &tabs[0].hwnd},
+	{"hide_tray", CFG_BOOL, &cfg.hide_tray, {.b = false},
+		IDC_HIDETRAY, &tabs[0].hwnd},
 	{"autostart_as_admin", CFG_BOOL, &cfg.autostart_as_admin, {.b = false},
 		IDC_AUTOSTARTADMIN, &tabs[0].hwnd},
 	{"modifier_key", CFG_UINT8, &cfg.modifier_key, {.u8 = 0}, IDC_MODIFIER,

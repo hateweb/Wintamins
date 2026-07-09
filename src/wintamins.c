@@ -265,6 +265,9 @@ bool elevate()
 	info.lpFile = path;
 	info.nShow = SW_NORMAL;
 
+	if (hide_tray)
+		info.lpParameters = "--hide-tray";
+
 	if (!ShellExecuteEx(&info))
 	{
 		log_msg(STATUS_ERROR, "failed to elevate");
@@ -299,6 +302,9 @@ void autostart()
 
 	if (cfg.autostart_as_admin)
 		strcat(path, " --elevated");
+
+	if (cfg.hide_tray)
+		strcat(path, " --hide-tray");
 
 	if (RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
 	{

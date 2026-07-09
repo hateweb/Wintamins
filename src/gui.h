@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <windows.h>
 
@@ -9,6 +10,8 @@ typedef struct
 	HWND hwnd;
 	int id;
 } tab;
+
+extern bool hide_tray;
 
 extern tab tabs[];
 extern const uint8_t max_tabs;

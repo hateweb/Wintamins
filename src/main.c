@@ -35,7 +35,28 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	UNREFERENCED_PARAMETER(hprevinstance);
 	UNREFERENCED_PARAMETER(ncmdshow);
 
-	if (lpcmdline && strlen(lpcmdline) > 0 && !strcmp(lpcmdline, "--elevated"))
+	int argc;
+	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	bool should_elevate = false;
+
+	if (argv != NULL)
+	{
+		if (argc > 1)
+		{
+			for (int i = 0; i < argc; i++)
+			{
+				if (!wcscmp(argv[i], L"--elevated"))
+					should_elevate = true;
+				else if (!wcscmp(argv[i], L"--hide-tray"))
+					hide_tray = true;
+			}
+		}
+
+		LocalFree((void*)argv);
+	}
+
+	if (should_elevate)
 	{
 		elevate();
 		return EXIT_SUCCESS;

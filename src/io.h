@@ -36,6 +36,7 @@ typedef struct
 	bool snap_cursor_on_resize;
 	bool hide_titlebars;
 	bool add_to_autostart;
+	bool hide_tray;
 	bool autostart_as_admin;
 	uint8_t modifier_key;
 	uint8_t modifier_key2;
