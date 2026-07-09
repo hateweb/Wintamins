@@ -52,16 +52,16 @@ HANDLE drag_work_ev;
 HANDLE drag_thread_h;
 bool run_thread = true;
 
-const char* whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
-	"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
-	"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
-	"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
-	"XamlExplorerHostIslandWindow"};
-
-int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
-
 bool compare(HWND hwnd)
 {
+	static const char* const whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
+		"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
+		"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
+		"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
+		"XamlExplorerHostIslandWindow"};
+
+	static const int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
+
 	char class[256];
 	GetClassName(hwnd, class, sizeof(class));
 
