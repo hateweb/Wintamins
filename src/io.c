@@ -159,7 +159,7 @@ void assign_config(const char* key, const char* value)
 				*(bool*)entries[i].value_ptr = (strcasecmp(value, "true") == 0);
 
 			else if (entries[i].t == CFG_UINT8)
-				*(uint8_t*)entries[i].value_ptr = (uint8_t)atoi(value);
+				*(uint8_t*)entries[i].value_ptr = (uint8_t)strtol(value, NULL, 10);
 
 			return;
 		}
