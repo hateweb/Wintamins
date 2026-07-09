@@ -34,9 +34,6 @@ static const int cursor_amt = sizeof(cursors) / sizeof(cursors[0]);
 
 HWINEVENTHOOK hk_win_ev;
 
-bool console_state = false;
-HWND console_wnd;
-
 uint8_t state = 0;
 bool action_occurred = false;
 bool mod_active = false;
