@@ -486,6 +486,10 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 					return TRUE;
 
+				case ID_TRAY_HIDE:
+					Shell_NotifyIcon(NIM_DELETE, &tray_data);
+					return TRUE;
+
 				case ID_TRAY_SHOW:
 					ShowWindow(hwnd, SW_SHOW);
 					SetForegroundWindow(hwnd);
