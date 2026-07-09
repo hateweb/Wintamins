@@ -227,7 +227,7 @@ bool is_light_mode()
 	return lightmode;
 }
 
-void setup_tray(HWND hwnd, bool update)
+void setup_tray(HWND hwnd, int msg)
 {
 	tray_data.cbSize = sizeof(NOTIFYICONDATAA);
 	tray_data.hWnd = hwnd;
@@ -237,7 +237,7 @@ void setup_tray(HWND hwnd, bool update)
 	tray_data.hIcon = is_light_mode() ? icon_dark : icon_light;
 	snprintf(tray_data.szTip, sizeof(tray_data.szTip), "%s", name);
 
-	Shell_NotifyIcon(update ? NIM_MODIFY : NIM_ADD, &tray_data);
+	Shell_NotifyIcon(msg, &tray_data);
 }
 
 void tray_menu(HWND hwnd)
@@ -280,7 +280,8 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 	if (umsg == shellrestartmsg && shellrestartmsg)
 	{
-		setup_tray(hwnd, true);
+		log_msg(STATUS_ERROR, "restartmsg");
+		setup_tray(hwnd, NIM_ADD);
 		return TRUE;
 	}
 
@@ -298,7 +299,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 				DEFAULT_PITCH | FF_DONTCARE, "MS Shell Dlg");
 
 			HINSTANCE hinstance = GetModuleHandle(NULL);
-			setup_tray(hwnd, false);
+			setup_tray(hwnd, NIM_ADD);
 
 			HICON small_icon = icon_dark;
 			if (small_icon)
@@ -389,7 +390,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 		case WM_SETTINGCHANGE:
 			if (lparam && !strcmp((const char*)lparam, "ImmersiveColorSet"))
 			{
-				setup_tray(hwnd, true);
+				setup_tray(hwnd, NIM_MODIFY);
 				return TRUE;
 			}
 			break;
