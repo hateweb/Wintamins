@@ -111,10 +111,35 @@ void override_style(HWND hwnd)
 	tracked_wnds[tracked_count].original_style = original_style;
 	tracked_count++;
 
+	if (IsZoomed(hwnd) || IsIconic(hwnd))
+	{
+		SetWindowLongPtr(hwnd, GWL_STYLE, style_override);
+		SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
+				SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+
+		return;
+	}
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	int d_left = 0;
+	int d_top = 0;
+	int d_right = 0;
+	int d_bottom = 0;
+
+	adjust_wnd_rect(hwnd, original_style, style_override, &d_left, &d_top,
+		&d_right, &d_bottom);
+
+	int new_x = rect.left + d_left;
+	int new_y = rect.top + d_top;
+	int new_w = (rect.right - rect.left) + (d_right - d_left);
+	int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
+
 	SetWindowLongPtr(hwnd, GWL_STYLE, style_override);
-	SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
-			SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+	SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
+		SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
 }
 
 void adjust_wnd_rect(HWND hwnd,
@@ -158,31 +183,32 @@ void restore()
 			SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
 				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
 					SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+
+			continue;
 		}
-		else
-		{
-			LONG_PTR current_style = GetWindowLongPtr(hwnd, GWL_STYLE);
 
-			RECT rect;
-			GetWindowRect(hwnd, &rect);
+		LONG_PTR current_style = GetWindowLongPtr(hwnd, GWL_STYLE);
 
-			int d_left = 0;
-			int d_top = 0;
-			int d_right = 0;
-			int d_bottom = 0;
-			adjust_wnd_rect(hwnd, current_style, original_style, &d_left,
-				&d_top, &d_right, &d_bottom);
+		RECT rect;
+		GetWindowRect(hwnd, &rect);
 
-			int new_x = rect.left + d_left;
-			int new_y = rect.top + d_top;
-			int new_w = (rect.right - rect.left) + (d_right - d_left);
-			int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
+		int d_left = 0;
+		int d_top = 0;
+		int d_right = 0;
+		int d_bottom = 0;
 
-			SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
-			SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
-				SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED |
-					SWP_ASYNCWINDOWPOS);
-		}
+		adjust_wnd_rect(hwnd, current_style, original_style, &d_left, &d_top,
+			&d_right, &d_bottom);
+
+		int new_x = rect.left + d_left;
+		int new_y = rect.top + d_top;
+		int new_w = (rect.right - rect.left) + (d_right - d_left);
+		int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
+
+		SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
+		SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
+			SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED |
+				SWP_ASYNCWINDOWPOS);
 	}
 
 	tracked_count = 0;
