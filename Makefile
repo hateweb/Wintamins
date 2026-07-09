@@ -19,9 +19,9 @@ else
 endif
 
 # CFLAGS = -g -Og -flto -MMD -MP $(ARCH_FLAGS)
-CFLAGS = -static -O3 -flto -MMD -MP $(ARCH_FLAGS)
+CFLAGS = -static -O3 -flto -MMD -MP -Wall -Wunused-variable -Wextra $(ARCH_FLAGS)
 
-# LFLAGS = $(CFLAGS) -Wall -Wextra  -mwindows
+# LFLAGS = $(CFLAGS) -mwindows
 LFLAGS = $(CFLAGS) -Wl,-s -mwindows
 LDLIBS = -lcomctl32 -ldwmapi
 
