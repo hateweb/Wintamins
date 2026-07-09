@@ -149,7 +149,7 @@ void apply_config()
 {
 	if (tabs[0].hwnd && tabs[1].hwnd)
 	{
-		for (size_t i = 0; i < entries_size; i++)
+		for (int i = 0; i < entries_size; i++)
 		{
 			// too much table lookup. would this help?
 			config_e entry = entries[i];
@@ -193,7 +193,7 @@ void revert_config()
 	if (!tabs[0].hwnd || !tabs[1].hwnd)
 		return;
 
-	for (size_t i = 0; i < entries_size; i++)
+	for (int i = 0; i < entries_size; i++)
 	{
 		// too much table lookup. would this help?
 		config_e entry = entries[i];
