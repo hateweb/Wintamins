@@ -519,6 +519,13 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 		SetWindowPos(target_wnd, HWND_BOTTOM, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
+	else if (option == ACTION_ALWAYSONTOP)
+	{
+		LONG_PTR topmost = (GetWindowLongPtr(target_wnd, GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+		SetWindowPos(target_wnd, topmost ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	}
+
 	else if (option == ACTION_CLOSE)
 		PostMessage(target_wnd, WM_CLOSE, 0, 0);
 }
