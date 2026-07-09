@@ -53,7 +53,7 @@ HHOOK hk_keyboard;
 
 HANDLE drag_work_ev;
 HANDLE drag_thread_h;
-volatile int run_thread = 1;
+bool run_thread = true;
 
 const char* whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
 	"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
@@ -201,7 +201,7 @@ void goodbye()
 	if (hk_win_ev)
 		UnhookWinEvent(hk_win_ev);
 
-	run_thread = 0;
+	run_thread = false;
 
 	if (drag_work_ev != NULL)
 		SetEvent(drag_work_ev);
