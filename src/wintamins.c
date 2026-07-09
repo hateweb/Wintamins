@@ -645,6 +645,8 @@ void drag()
 
 unsigned __stdcall drag_thread(void* arg)
 {
+	UNREFERENCED_PARAMETER(arg);
+
 	while (run_thread)
 	{
 		DWORD wait_result = WaitForSingleObject(drag_work_ev, INFINITE);
