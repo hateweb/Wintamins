@@ -288,6 +288,8 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 	{
 		case WM_INITDIALOG:
 		{
+			EnumChildWindows(hwnd, hide_focus, 0);
+
 			backbrush = CreateSolidBrush(RGB(249, 249, 249));
 
 			title_font = CreateFont(title_font_size, 0, 0, 0, FW_NORMAL, FALSE,
@@ -295,7 +297,6 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 				CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 				DEFAULT_PITCH | FF_DONTCARE, "MS Shell Dlg");
 
-			EnumChildWindows(hwnd, hide_focus, lparam);
 			HINSTANCE hinstance = GetModuleHandle(NULL);
 			setup_tray(hwnd, false);
 
