@@ -18,17 +18,6 @@ tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 const uint8_t max_tabs = sizeof(tabs) / sizeof(tab);
 uint8_t current_tab = 0;
 
-static const char* mod_names[] = {
-	"None", "Left Win", "Right Win", "Left Alt", "Right Alt"};
-static const uint8_t mod_names_size = sizeof(mod_names) / sizeof(mod_names[0]);
-
-static const char* act_names[] = {"Do nothing", "Move", "Resize",
-	"Toggle maximize", "Minimize", "Send to bottom", "Close"};
-static const uint8_t act_names_size = sizeof(act_names) / sizeof(act_names[0]);
-
-static const int key_ids[] = {IDC_LMB, IDC_MMB, IDC_RMB, IDC_M4, IDC_M5};
-static const int key_ids_size = sizeof(key_ids) / sizeof(key_ids[0]);
-
 static const uint8_t title_font_size = 20;
 static HFONT title_font;
 static HBRUSH backbrush;
@@ -348,6 +337,11 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 						tab_rect.bottom - tab_rect.top,
 						i == 0 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
 
+			static const char* mod_names[] = {
+				"None", "Left Win", "Right Win", "Left Alt", "Right Alt"};
+			static const uint8_t mod_names_size =
+				sizeof(mod_names) / sizeof(mod_names[0]);
+
 			HWND modkey = GetDlgItem(tabs[1].hwnd, IDC_MODIFIER);
 			if (modkey)
 				for (int i = 1; i < mod_names_size; i++)
@@ -357,6 +351,17 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 			if (modkey2)
 				for (int i = 0; i < mod_names_size; i++)
 					SendMessage(modkey2, CB_ADDSTRING, 0, (LPARAM)mod_names[i]);
+
+			static const int key_ids[] = {
+				IDC_LMB, IDC_MMB, IDC_RMB, IDC_M4, IDC_M5};
+			static const int key_ids_size =
+				sizeof(key_ids) / sizeof(key_ids[0]);
+
+			static const char* act_names[] = {"Do nothing", "Move", "Resize",
+				"Toggle maximize", "Minimize", "Send to bottom",
+				"Toggle always on top", "Close"};
+			static const uint8_t act_names_size =
+				sizeof(act_names) / sizeof(act_names[0]);
 
 			for (int i = 0; i < key_ids_size; i++)
 			{
