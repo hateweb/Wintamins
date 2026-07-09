@@ -50,8 +50,8 @@ const config_e entries[] = {
 		IDC_HIDEBARS, &tabs[0].hwnd},
 	{"add_to_autostart", CFG_BOOL, &cfg.add_to_autostart, {.b = false},
 		IDC_AUTOSTART, &tabs[0].hwnd},
-	{"hide_tray", CFG_BOOL, &cfg.hide_tray, {.b = false},
-		IDC_HIDETRAY, &tabs[0].hwnd},
+	{"hide_tray", CFG_BOOL, &cfg.hide_tray, {.b = false}, IDC_HIDETRAY,
+		&tabs[0].hwnd},
 	{"autostart_as_admin", CFG_BOOL, &cfg.autostart_as_admin, {.b = false},
 		IDC_AUTOSTARTADMIN, &tabs[0].hwnd},
 	{"modifier_key", CFG_UINT8, &cfg.modifier_key, {.u8 = 0}, IDC_MODIFIER,
@@ -77,7 +77,6 @@ const int entries_size = sizeof(entries) / sizeof(entries[0]);
 const int modkeys[] = {0x0, VK_LWIN, VK_RWIN, VK_LMENU, VK_RMENU};
 
 FILE* log_file;
-const char* status[] = {"E", "W", "I"};
 
 void open_log()
 {
@@ -104,6 +103,7 @@ void log_msg(const int level, const char* fmt, ...)
 	char t_buf[80];
 	time_t t_raw = time(NULL);
 	struct tm* t_info = localtime(&t_raw);
+	const char* status[] = {"E", "W", "I"};
 
 	strftime(t_buf, sizeof(t_buf), "%Y-%m-%d %H:%M:%S", t_info);
 	fprintf(log_file, "[%s] [%s] ", t_buf, status[level]);
