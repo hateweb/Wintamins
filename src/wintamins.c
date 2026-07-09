@@ -54,8 +54,8 @@ bool run_thread = true;
 
 bool compare(HWND hwnd)
 {
-	static const char* const whitelist[] = {"#32768", "Progman", "WorkerW", "Shell_TrayWnd",
-		"Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
+	static const char* const whitelist[] = {"#32768", "Progman", "WorkerW",
+		"Shell_TrayWnd", "Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
 		"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
 		"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
 		"XamlExplorerHostIslandWindow"};
