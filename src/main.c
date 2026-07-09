@@ -33,6 +33,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	int ncmdshow)
 {
 	UNREFERENCED_PARAMETER(hprevinstance);
+	UNREFERENCED_PARAMETER(lpcmdline);
 	UNREFERENCED_PARAMETER(ncmdshow);
 
 	int argc;
