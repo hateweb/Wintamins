@@ -38,7 +38,7 @@ bool console_state = false;
 HWND console_wnd;
 
 uint8_t state = 0;
-bool drag_occurred = false;
+bool action_occurred = false;
 bool mod_active = false;
 bool was_maximized = false;
 
@@ -586,11 +586,22 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	}
 	else if (wparam == WM_MOUSEWHEEL)
 	{
-		// WORD deltascroll = HIWORD(mouse_struct->mouseData);
-		// if deltascroll > 0...
+		if (cfg.action_scr == SCROLL_VOLUME)
+		{
+			short scr_d = HIWORD(p_mouse_struct->mouseData);
+
+			INPUT input;
+			input.type = INPUT_KEYBOARD;
+			input.ki.wVk = (scr_d > 0) ? VK_VOLUME_UP : VK_VOLUME_DOWN;
+			input.ki.dwFlags = 0;
+			SendInput(1, &input, sizeof(INPUT));
+
+			input.ki.dwFlags = KEYEVENTF_KEYUP;
+			SendInput(1, &input, sizeof(INPUT));
+		}
 	}
 
-	drag_occurred = true;
+	action_occurred = true;
 
 	// make sure the click doesn't get sent
 	return true;
@@ -639,8 +650,9 @@ bool any_key_down(WPARAM wparam)
 	return (wparam == WM_LBUTTONDOWN && cfg.action_lmb != ACTION_NONE) ||
 		   (wparam == WM_MBUTTONDOWN && cfg.action_mmb != ACTION_NONE) ||
 		   (wparam == WM_RBUTTONDOWN && cfg.action_rmb != ACTION_NONE) ||
-		   (wparam == WM_XBUTTONDOWN &&
-			   (cfg.action_m4 != ACTION_NONE || cfg.action_m5 != ACTION_NONE));
+		   (wparam == WM_XBUTTONDOWN && (cfg.action_m4 != ACTION_NONE ||
+											cfg.action_m5 != ACTION_NONE)) ||
+		   (wparam == WM_MOUSEWHEEL && cfg.action_scr != SCROLL_NONE);
 }
 
 bool any_key_up(WPARAM wparam)
@@ -754,9 +766,9 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 				if (state == ACTION_NONE)
 					destroy_mouse_hk();
 
-				if (drag_occurred)
+				if (action_occurred)
 				{
-					drag_occurred = false;
+					action_occurred = false;
 					winkey();
 				}
 			}

@@ -44,6 +44,7 @@ typedef struct
 	uint8_t action_rmb;
 	uint8_t action_m4;
 	uint8_t action_m5;
+	uint8_t action_scr;
 } config;
 
 extern config cfg;

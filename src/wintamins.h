@@ -17,6 +17,12 @@ enum
 
 enum
 {
+	SCROLL_NONE,
+	SCROLL_VOLUME,
+};
+
+enum
+{
 	CORNER_TOPLEFT = 4,
 	CORNER_TOPRIGHT = 5,
 	CORNER_BOTTOMLEFT = 7,

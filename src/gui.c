@@ -373,6 +373,15 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 							item, CB_ADDSTRING, 0, (LPARAM)act_names[j]);
 			}
 
+			static const char* scr_act_names[] = {"Do nothing", "Volume control"};
+			static const uint8_t scr_act_names_size =
+				sizeof(scr_act_names) / sizeof(scr_act_names[0]);
+
+			HWND scroll = GetDlgItem(tabs[1].hwnd, IDC_SCR);
+			if (scroll)
+				for (int i = 0; i < scr_act_names_size; i++)
+					SendMessage(scroll, CB_ADDSTRING, 0, (LPARAM)scr_act_names[i]);
+
 			revert_config();
 			return TRUE;
 		}

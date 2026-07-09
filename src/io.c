@@ -66,6 +66,8 @@ const config_e entries[] = {
 		&tabs[1].hwnd},
 	{"action_m5", CFG_UINT8, &cfg.action_m5, {.u8 = ACTION_NONE}, IDC_M5,
 		&tabs[1].hwnd},
+	{"action_scr", CFG_UINT8, &cfg.action_scr, {.u8 = ACTION_NONE}, IDC_SCR,
+		&tabs[1].hwnd},
 };
 
 const int entries_size = sizeof(entries) / sizeof(entries[0]);
