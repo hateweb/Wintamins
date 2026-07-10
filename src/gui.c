@@ -12,7 +12,10 @@
 #define WM_TRAYICON (WM_APP + 1)
 
 bool master_switch = true;
+
+bool should_elevate = false;
 bool hide_tray = false;
+bool no_updater = false;
 
 tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 	{"About", NULL, IDD_ABOUT}};

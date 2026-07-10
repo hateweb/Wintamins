@@ -23,6 +23,8 @@
 
 #include <time.h>
 #include <windows.h>
+#include <wininet.h>
+#include <objidl.h>
 
 #include "resources.h"
 #include "wintamins.h"
@@ -119,6 +121,116 @@ void log_msg(const int level, const char* fmt, ...)
 		fflush(log_file);
 }
 
+bool parse_version(int major, int minor)
+{
+	if (major > VERSION_MAJOR)
+		return true;
+
+	if (major == VERSION_MAJOR && minor > VERSION_MINOR)
+		return true;
+
+	return false;
+}
+
+void cleanup()
+{
+	char path[MAX_PATH];
+	if (!GetModuleFileName(NULL, path, MAX_PATH))
+		return;
+
+	strcat(path, ".old");
+	DeleteFile(path);
+}
+
+bool update_itself()
+{
+	char path[MAX_PATH];
+	if (!GetModuleFileName(NULL, path, MAX_PATH))
+		return false;
+
+	char path_old[MAX_PATH];
+	strncpy(path_old, path, sizeof(path_old));
+	strcat(path_old, ".old");
+
+	HRESULT move_status = MoveFile(path, path_old);
+	if (move_status == 0)
+	{
+		log_msg(STATUS_WARN, "%s", path);
+		return false;
+	}
+
+	char url[128];
+	snprintf(url, sizeof(url), "https://github.com/hateweb/Wintamins/releases/latest/download/Wintamins%d.exe", BUILD_ARCH);
+
+	HRESULT result = URLDownloadToFile(NULL, url, path, 0, NULL);
+
+	if (result != 0)
+	{
+		log_msg(STATUS_WARN, "failed to download an update");
+		return false;
+	}
+
+	char* args = "--no-updater";
+
+	if (hide_tray)
+		strcat(args, " --hide-tray");
+
+	launch(args, should_elevate);
+
+	return true;
+}
+
+bool update()
+{
+	HINTERNET h_session;
+	HINTERNET h_url;
+	bool success = false;
+
+	h_session = InternetOpen(name, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+	if (!h_session)
+		return false;
+
+	char buffer[64];
+	unsigned long bytes_read = 0;
+
+	h_url = InternetOpenUrl(h_session, "https://hateweb.github.io/version.txt",
+		NULL, 0,
+		INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE |
+			INTERNET_FLAG_PRAGMA_NOCACHE,
+		0);
+	if (h_url)
+	{
+		success = InternetReadFile(h_url, buffer, sizeof(buffer), &bytes_read);
+		InternetCloseHandle(h_url);
+	}
+
+	InternetCloseHandle(h_session);
+
+	if (!success || bytes_read == 0 || strlen(buffer) < 1)
+	{
+		log_msg(STATUS_WARN, "couldn't get latest version");
+		return false;
+	}
+
+	int major, minor;
+	sscanf(buffer, "%d.%d", &major, &minor);
+
+	if (!parse_version(major, minor))
+		return false;
+
+	char msg[128];
+	snprintf(
+		msg, sizeof(msg), "Version %d.%d is available. Update?", major, minor);
+
+	int response = MessageBox(
+		NULL, msg, "Wintamins Update", MB_YESNO | MB_ICONINFORMATION);
+	if (response != IDYES)
+		return false;
+
+	// return false;
+	return update_itself();
+}
+
 char* trim(char* str)
 {
 	while (isspace((unsigned char)*str))
@@ -127,7 +239,6 @@ char* trim(char* str)
 	if (*str == '\0')
 		return str;
 
-	// Trim trailing space
 	char* end = str + strlen(str) - 1;
 	while (end > str && isspace((unsigned char)*end))
 		end--;

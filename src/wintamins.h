@@ -60,8 +60,11 @@ void adjust_wnd_rect(HWND hwnd,
 void restore();
 void goodbye();
 void winkey();
+
+void launch(const char* args, bool elevate);
 bool elevate();
 void autostart();
+
 unsigned __stdcall drag_thread(void* arg);
 void init_win_event_hk();
 void destroy_win_event_hk();

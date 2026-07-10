@@ -23,7 +23,7 @@ CFLAGS = -static -O3 -flto -MMD -MP -Wall -Wunused-variable -Wextra $(ARCH_FLAGS
 
 # LFLAGS = $(CFLAGS) -mwindows
 LFLAGS = $(CFLAGS) -Wl,-s -mwindows
-LDLIBS = -lcomctl32 -ldwmapi
+LDLIBS = -lcomctl32 -ldwmapi -lwininet -lurlmon
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 HDRS = $(wildcard $(BUILD_DIR)/*.d)

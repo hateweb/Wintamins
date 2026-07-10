@@ -39,8 +39,6 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	int argc;
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	bool should_elevate = false;
-
 	if (argv != NULL)
 	{
 		if (argc > 1)
@@ -51,10 +49,30 @@ int WINAPI WinMain(HINSTANCE hinstance,
 					should_elevate = true;
 				else if (!wcscmp(argv[i], L"--hide-tray"))
 					hide_tray = true;
+				else if (!wcscmp(argv[i], L"--no-updater"))
+					no_updater = true;
 			}
 		}
 
 		LocalFree((void*)argv);
+	}
+
+	open_log();
+	cleanup();
+
+	if (!no_updater)
+	{
+		if (update())
+			return EXIT_SUCCESS;
+		else
+		{
+			char* args = "--no-updater";
+
+			if (hide_tray)
+				strcat(args, " --hide-tray");
+
+			launch(args, should_elevate);
+		}
 	}
 
 	if (should_elevate)
@@ -63,7 +81,6 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		return EXIT_SUCCESS;
 	}
 
-	open_log();
 	ini_parse();
 	license_write();
 	autostart();

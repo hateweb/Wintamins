@@ -11,7 +11,9 @@ typedef struct
 	int id;
 } tab;
 
+extern bool should_elevate;
 extern bool hide_tray;
+extern bool no_updater;
 
 extern tab tabs[];
 extern const uint8_t max_tabs;

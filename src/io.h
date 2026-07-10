@@ -79,6 +79,9 @@ void open_log();
 void close_log();
 void log_msg(const int level, const char* fmt, ...);
 
+void cleanup();
+bool update();
+
 void ini_parse();
 void ini_write();
 void license_write();

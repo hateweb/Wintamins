@@ -21,6 +21,15 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+
+#if defined(__x86_64__) || defined(_M_X64)
+#define BUILD_ARCH 64
+#else
+#define BUILD_ARCH 32
+#endif
+
 #define IDD_SETTINGS 101
 #define IDD_GENERAL 102
 #define IDD_MOUSE 103

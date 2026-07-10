@@ -260,6 +260,32 @@ void winkey()
 	SendInput(2, inputs, sizeof(INPUT));
 }
 
+void launch(const char* args, bool elevate)
+{
+	char path[MAX_PATH];
+	if (!GetModuleFileName(NULL, path, MAX_PATH))
+		return;
+
+	SHELLEXECUTEINFOA info = {};
+	info.cbSize = sizeof(info);
+	info.lpVerb = elevate ? "runas" : "open";
+	info.lpFile = path;
+	info.lpParameters = args;
+	info.nShow = SW_NORMAL;
+
+	if (!ShellExecuteEx(&info))
+	{
+		log_msg(STATUS_ERROR, "failed to elevate");
+		return;
+	}
+	else
+	{
+		goodbye();
+		PostQuitMessage(0);
+		return;
+	}
+}
+
 bool elevate()
 {
 	char path[MAX_PATH];
@@ -282,26 +308,14 @@ bool elevate()
 	if (elevated)
 		return false;
 
-	SHELLEXECUTEINFOA info = {};
-	info.cbSize = sizeof(info);
-	info.lpVerb = "runas";
-	info.lpFile = path;
-	info.nShow = SW_NORMAL;
+	const char* args = "--no-updater";
 
 	if (hide_tray)
-		info.lpParameters = "--hide-tray";
+		args = "--hide-tray";
 
-	if (!ShellExecuteEx(&info))
-	{
-		log_msg(STATUS_ERROR, "failed to elevate");
-		return false;
-	}
-	else
-	{
-		goodbye();
-		PostQuitMessage(0);
-		return true;
-	}
+	launch(args, true);
+	
+	return true;
 }
 
 void autostart()
