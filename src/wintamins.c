@@ -314,7 +314,7 @@ bool elevate()
 		args = "--hide-tray";
 
 	launch(args, true);
-	
+
 	return true;
 }
 
@@ -324,8 +324,8 @@ void autostart()
 	if (!cfg.add_to_autostart)
 	{
 		if (RegOpenKeyEx(HKEY_CURRENT_USER,
-			"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
-			KEY_SET_VALUE, &key) == ERROR_SUCCESS)
+				"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+				KEY_SET_VALUE, &key) == ERROR_SUCCESS)
 		{
 			RegDeleteValue(key, name);
 			RegCloseKey(key);
@@ -343,7 +343,9 @@ void autostart()
 	if (cfg.hide_tray)
 		strcat(path, " --hide-tray");
 
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER,
+			"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+			KEY_READ | KEY_SET_VALUE, &key) == ERROR_SUCCESS)
 	{
 		char buffer[MAX_PATH];
 		DWORD buffer_sz = sizeof(buffer);
@@ -427,8 +429,8 @@ bool get_unmax_bounds(HWND hwnd, RECT* rect_out)
 	}
 
 	// "workspace" coords to monitor coords
-	HMONITOR monitor = MonitorFromRect(
-		&wp.rcNormalPosition, MONITOR_DEFAULTTONEAREST);
+	HMONITOR monitor =
+		MonitorFromRect(&wp.rcNormalPosition, MONITOR_DEFAULTTONEAREST);
 	if (!monitor)
 	{
 		*rect_out = wp.rcNormalPosition;
@@ -581,9 +583,10 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 
 	else if (option == ACTION_ALWAYSONTOP)
 	{
-		LONG_PTR topmost = (GetWindowLongPtr(target_wnd, GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
-		SetWindowPos(target_wnd, topmost ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		LONG_PTR topmost = (GetWindowLongPtr(target_wnd, GWL_EXSTYLE) &
+							   WS_EX_TOPMOST) == WS_EX_TOPMOST;
+		SetWindowPos(target_wnd, topmost ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0,
+			0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 	}
 
 	else if (option == ACTION_CLOSE)
@@ -599,7 +602,7 @@ void release_logic(int option, MSLLHOOKSTRUCT* mouse_struct)
 	{
 		POINT pt = mouse_struct->pt;
 		PostMessage(target_wnd, WM_LBUTTONUP, 0, MAKELPARAM(pt.x, pt.y));
-		
+
 		reset_values();
 	}
 }
@@ -819,8 +822,9 @@ LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 		KBDLLHOOKSTRUCT* pKey = (KBDLLHOOKSTRUCT*)lparam;
 
 		if (pKey->vkCode == (DWORD)modkeys[cfg.modifier_key + 1] ||
-			(cfg.modifier_key2 != 0 ? pKey->vkCode == (DWORD)modkeys[cfg.modifier_key2]
-								: false))
+			(cfg.modifier_key2 != 0
+					? pKey->vkCode == (DWORD)modkeys[cfg.modifier_key2]
+					: false))
 		{
 			if (wparam == WM_KEYDOWN || wparam == WM_SYSKEYDOWN)
 			{
