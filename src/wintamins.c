@@ -616,6 +616,20 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	if (!root_hwnd || root_hwnd == desktop_hwnd || compare(root_hwnd))
 		return false;
 
+	HANDLE prop = GetProp(root_hwnd, "original_style");
+	if (prop)
+	{
+		LONG original_style = (LONG)(intptr_t)prop;
+		if (!(original_style & WS_CAPTION))
+			return false;
+	}
+	else
+	{
+		LONG_PTR style = GetWindowLongPtr(root_hwnd, GWL_STYLE);
+		if (!(style & WS_CAPTION))
+			return false;
+	}
+
 	WINDOWPLACEMENT wp;
 	wp.length = sizeof(WINDOWPLACEMENT);
 
