@@ -558,6 +558,23 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 	else if (option == ACTION_MINIMIZE)
 		PostMessage(target_wnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 
+	else if (option == ACTION_CENTER)
+	{
+		HMONITOR mon = MonitorFromWindow(target_wnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO info;
+		info.cbSize = sizeof(MONITORINFO);
+
+		GetMonitorInfo(mon, &info);
+		
+		int w = window_start.right - window_start.left;
+		int h = window_start.bottom - window_start.top;
+		
+		int x = info.rcWork.left + (info.rcWork.right - info.rcWork.left - w) / 2;
+		int y = info.rcWork.top + (info.rcWork.bottom - info.rcWork.top - h) / 2;
+		SetWindowPos(target_wnd, NULL, x, y, 0, 0,
+			SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
+	}
+
 	else if (option == ACTION_BRINGDOWN)
 		SetWindowPos(target_wnd, HWND_BOTTOM, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
