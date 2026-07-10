@@ -71,7 +71,6 @@
 #define IDC_GROUP_ABOUT 1025
 #define IDC_TAB1 1026
 
-// New IDs for the tray menu
 #define IDM_TRAYMENU 201
 #define ID_TRAY_ENABLED 2001
 #define ID_TRAY_HIDE 2002
