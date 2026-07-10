@@ -577,6 +577,9 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 			SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 	}
 
+	else if (option == ACTION_FOCUS)
+		SetForegroundWindow(target_wnd);
+
 	else if (option == ACTION_BRINGDOWN)
 		SetWindowPos(target_wnd, HWND_BOTTOM, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);

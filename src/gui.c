@@ -367,8 +367,8 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 				sizeof(key_ids) / sizeof(key_ids[0]);
 
 			static const char* act_names[] = {"Do nothing", "Move", "Resize",
-				"Toggle maximize", "Minimize", "Center", "Send to bottom",
-				"Toggle always on top", "Close"};
+				"Toggle maximize", "Minimize", "Center", "Bring to foreground",
+				"Send to bottom", "Toggle always on top", "Close"};
 			static const uint8_t act_names_size =
 				sizeof(act_names) / sizeof(act_names[0]);
 
