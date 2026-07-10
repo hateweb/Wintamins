@@ -14,16 +14,6 @@
 const char name[] = "Wintamins";
 const char contitle[] = "Wintamins Console";
 
-typedef struct
-{
-	HWND hwnd;
-	LONG_PTR original_style;
-} modwnd;
-
-#define MAX_TRACKED_WINDOWS 256
-modwnd tracked_wnds[MAX_TRACKED_WINDOWS];
-int tracked_count = 0;
-
 HCURSOR cursor_drag;
 HCURSOR cursor_resize_tl_br;
 HCURSOR cursor_resize_tr_bl;
@@ -74,7 +64,7 @@ bool compare(HWND hwnd)
 
 void override_style(HWND hwnd)
 {
-	if (tracked_count >= MAX_TRACKED_WINDOWS || !hwnd || !IsWindow(hwnd) ||
+	if (!hwnd || !IsWindow(hwnd) ||
 		!IsWindowVisible(hwnd) || GetAncestor(hwnd, GA_ROOT) != hwnd)
 		return;
 
@@ -107,9 +97,7 @@ void override_style(HWND hwnd)
 	if (style_override == original_style)
 		return;
 
-	tracked_wnds[tracked_count].hwnd = hwnd;
-	tracked_wnds[tracked_count].original_style = original_style;
-	tracked_count++;
+	SetProp(hwnd, "original_style", (HANDLE)(intptr_t)original_style);
 
 	if (IsZoomed(hwnd) || IsIconic(hwnd))
 	{
@@ -166,57 +154,57 @@ void adjust_wnd_rect(HWND hwnd,
 	*d_bottom = rect_to.bottom - rect_from.bottom;
 }
 
-void restore()
+BOOL CALLBACK restore(HWND hwnd, LPARAM lparam)
 {
-	for (int i = 0; i < tracked_count; i++)
+	UNREFERENCED_PARAMETER(lparam);
+
+	HANDLE prop = GetProp(hwnd, "original_style");
+
+	if (!prop)
+		return TRUE;
+
+	LONG original_style = (LONG)(intptr_t)prop;
+
+	// the weird size thing doesn't affect minimized/maximized apps.
+	if (IsZoomed(hwnd) || IsIconic(hwnd))
 	{
-		HWND hwnd = tracked_wnds[i].hwnd;
-		if (!IsWindow(hwnd))
-			continue;
-
-		LONG_PTR original_style = tracked_wnds[i].original_style;
-
-		// the weird size thing doesn't affect minimized/maximized apps.
-		if (IsZoomed(hwnd) || IsIconic(hwnd))
-		{
-			SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
-			SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
-					SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
-
-			continue;
-		}
-
-		LONG_PTR current_style = GetWindowLongPtr(hwnd, GWL_STYLE);
-
-		RECT rect;
-		GetWindowRect(hwnd, &rect);
-
-		int d_left = 0;
-		int d_top = 0;
-		int d_right = 0;
-		int d_bottom = 0;
-
-		adjust_wnd_rect(hwnd, current_style, original_style, &d_left, &d_top,
-			&d_right, &d_bottom);
-
-		int new_x = rect.left + d_left;
-		int new_y = rect.top + d_top;
-		int new_w = (rect.right - rect.left) + (d_right - d_left);
-		int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
-
 		SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
-		SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
-			SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED |
-				SWP_ASYNCWINDOWPOS);
+		SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
+				SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+
+		RemoveProp(hwnd, "original_style");
+		return TRUE;
 	}
 
-	tracked_count = 0;
+	LONG_PTR current_style = GetWindowLongPtr(hwnd, GWL_STYLE);
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	int d_left = 0;
+	int d_top = 0;
+	int d_right = 0;
+	int d_bottom = 0;
+
+	adjust_wnd_rect(hwnd, current_style, original_style, &d_left, &d_top,
+		&d_right, &d_bottom);
+
+	int new_x = rect.left + d_left;
+	int new_y = rect.top + d_top;
+	int new_w = (rect.right - rect.left) + (d_right - d_left);
+	int new_h = (rect.bottom - rect.top) + (d_bottom - d_top);
+
+	SetWindowLongPtr(hwnd, GWL_STYLE, original_style);
+	SetWindowPos(hwnd, NULL, new_x, new_y, new_w, new_h,
+		SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+
+	return TRUE;
 }
 
 void goodbye()
 {
-	restore();
+	EnumWindows(restore, 0);
 
 	if (tray_data.hWnd != NULL)
 		Shell_NotifyIcon(NIM_DELETE, &tray_data);

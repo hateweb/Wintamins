@@ -174,7 +174,7 @@ void apply_config()
 
 	ini_write();
 
-	restore();
+	EnumWindows(restore, 0);
 	autostart();
 
 	if (cfg.hide_titlebars)
@@ -482,7 +482,7 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 
 						if (cfg.hide_titlebars)
 						{
-							restore();
+							EnumWindows(restore, 0);
 							destroy_win_event_hk();
 						}
 					}

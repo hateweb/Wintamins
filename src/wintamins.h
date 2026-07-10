@@ -59,7 +59,7 @@ void adjust_wnd_rect(HWND hwnd,
 	int* d_top,
 	int* d_right,
 	int* d_bottom);
-void restore();
+BOOL CALLBACK restore(HWND hwnd, LPARAM lparam);
 void goodbye();
 void winkey();
 
