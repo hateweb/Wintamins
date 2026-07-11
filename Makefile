@@ -18,7 +18,7 @@ else
 	TARGET = $(BUILD_DIR)/Wintamins64.exe
 endif
 
-# CFLAGS = -g -Og -flto -MMD -MP $(ARCH_FLAGS)
+# CFLAGS = -gdwarf -O0 -MMD -MP -Wall -Wunused-variable -Wextra $(ARCH_FLAGS)
 CFLAGS = -static -O3 -flto -MMD -MP -Wall -Wunused-variable -Wextra $(ARCH_FLAGS)
 
 # LFLAGS = $(CFLAGS) -mwindows
