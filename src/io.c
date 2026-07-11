@@ -83,7 +83,7 @@ const config_e entries[] = {
 	{"action_exclude", CFG_ARR, &cfg.action_exclude, {.s = NULL}, IDC_ACTIONEX,
 		&tabs[2].hwnd},
 	{"exclude_without_titlebar", CFG_BOOL, &cfg.exclude_without_titlebar,
-		{.b = false}, IDC_IGNORENOTB, &tabs[2].hwnd},
+		{.b = true}, IDC_IGNORENOTB, &tabs[2].hwnd},
 	{"titlebar_exclude", CFG_ARR, &cfg.titlebar_exclude, {.s = NULL},
 		IDC_TITLEBAREX, &tabs[2].hwnd},
 };
