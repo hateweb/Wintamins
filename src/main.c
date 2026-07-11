@@ -138,7 +138,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		MAKEINTRESOURCE(IDD_SETTINGS), NULL, dlg_proc, (LPARAM)hinstance);
 	if (!settings_dlg)
 	{
-		log_msg(STATUS_ERROR, "failed to create dialog");
+		log_msg(STATUS_ERROR, "failed to create a dialog");
 		goodbye();
 		return EXIT_FAILURE;
 	}
@@ -150,7 +150,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 
 	if (!hwnd)
 	{
-		log_msg(STATUS_ERROR, "failed to create window");
+		log_msg(STATUS_ERROR, "failed to create a window");
 		goodbye();
 		return EXIT_FAILURE;
 	}

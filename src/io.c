@@ -169,7 +169,7 @@ bool update_itself()
 	HRESULT move_status = MoveFile(path, path_old);
 	if (move_status == 0)
 	{
-		log_msg(STATUS_WARN, "%s", path);
+		log_msg(STATUS_WARN, "failed to move the executable during an update", path);
 		return false;
 	}
 
