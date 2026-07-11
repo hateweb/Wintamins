@@ -126,6 +126,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	cursor_drag = LoadCursor(NULL, IDC_SIZEALL);
 	cursor_resize_tl_br = LoadCursor(NULL, IDC_SIZENWSE);
 	cursor_resize_tr_bl = LoadCursor(NULL, IDC_SIZENESW);
+	cursor_cross = LoadCursor(NULL, IDC_CROSS);
 
 	WNDCLASS wnd_class = {};
 	wnd_class.hIcon = icon_light;

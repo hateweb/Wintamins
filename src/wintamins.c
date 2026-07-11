@@ -18,6 +18,7 @@ const char contitle[] = "Wintamins Console";
 HCURSOR cursor_drag;
 HCURSOR cursor_resize_tl_br;
 HCURSOR cursor_resize_tr_bl;
+HCURSOR cursor_cross;
 
 static const DWORD cursors[] = {OCR_NORMAL, OCR_IBEAM, OCR_WAIT, OCR_CROSS,
 	OCR_UP, OCR_SIZEALL, OCR_SIZENS, OCR_SIZEWE, OCR_HAND};
@@ -628,6 +629,7 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 
 		init_keyboard_hk();
 		destroy_mouse_hk();
+		SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
 
 		return false;
 	}

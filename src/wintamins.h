@@ -40,6 +40,7 @@ extern const char contitle[];
 extern HCURSOR cursor_drag;
 extern HCURSOR cursor_resize_tl_br;
 extern HCURSOR cursor_resize_tr_bl;
+extern HCURSOR cursor_cross;
 
 extern HHOOK hk_mouse;
 extern HHOOK hk_keyboard;
@@ -65,6 +66,8 @@ void winkey();
 void launch(const char* args, bool elevate);
 bool elevate();
 void autostart();
+
+void set_cursor(HCURSOR* cur);
 
 unsigned __stdcall drag_thread(void* arg);
 void init_win_event_hk();

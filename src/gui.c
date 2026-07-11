@@ -130,6 +130,7 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 				EnableWindow(capture_btn, FALSE);
 				destroy_keyboard_hk();
 				init_mouse_hk();
+				set_cursor(&cursor_cross);
 				return TRUE;
 			}
 			break;
