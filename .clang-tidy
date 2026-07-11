@@ -1,2 +1,9 @@
-Checks: 'bugprone-*,cert-*,clang-analyzer-*,performance-*,portability-*'
+Checks: >
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  cert-*,
+  clang-analyzer-*,
+  performance-*,
+  portability-*
+
 WarningsAsErrors: ''
