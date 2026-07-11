@@ -41,6 +41,14 @@ bool config_created = false;
 
 config cfg;
 
+static const char* whitelist[] = {"#32768", "Progman", "WorkerW",
+	"Shell_TrayWnd", "Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
+	"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
+	"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
+	"XamlExplorerHostIslandWindow"};
+
+static const int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
+
 const config_e entries[] = {
 	{"focus_window_on_drag", CFG_BOOL, &cfg.focus_window_on_drag, {.b = true},
 		IDC_FOCUSWINDOW, &tabs[0].hwnd},
@@ -72,6 +80,12 @@ const config_e entries[] = {
 		&tabs[1].hwnd},
 	{"action_scr", CFG_UINT8, &cfg.action_scr, {.u8 = ACTION_NONE}, IDC_SCR,
 		&tabs[1].hwnd},
+	{"action_exclude", CFG_ARR, &cfg.action_exclude, {.s = NULL}, IDC_ACTIONEX,
+		&tabs[2].hwnd},
+	{"exclude_without_titlebar", CFG_BOOL, &cfg.exclude_without_titlebar,
+		{.b = false}, IDC_IGNORENOTB, &tabs[2].hwnd},
+	{"titlebar_exclude", CFG_ARR, &cfg.titlebar_exclude, {.s = NULL},
+		IDC_TITLEBAREX, &tabs[2].hwnd},
 };
 
 const int entries_size = sizeof(entries) / sizeof(entries[0]);
@@ -227,7 +241,6 @@ bool update()
 	if (response != IDYES)
 		return false;
 
-	// return false;
 	return update_itself();
 }
 
@@ -256,6 +269,12 @@ void reset_config()
 
 		else if (entries[i].t == CFG_UINT8)
 			*(uint8_t*)entries[i].value_ptr = entries[i].def.u8;
+
+		else if (entries[i].t == CFG_ARR)
+		{
+			for (int j = 0; j < wl_size; j++)
+				((char**)entries[i].value_ptr)[j] = strdup(whitelist[j]);
+		}
 	}
 }
 
@@ -271,6 +290,27 @@ void assign_config(const char* key, const char* value)
 
 			else if (entries[i].t == CFG_UINT8)
 				*(uint8_t*)entries[i].value_ptr = (uint8_t)strtol(value, NULL, 10);
+
+			else if (entries[i].t == CFG_ARR)
+			{
+				for (int j = 0; j < MAX_EXCLUDE; j++)
+					((void**)entries[i].value_ptr)[j] = NULL;
+
+				char* dup = strdup(value);
+				if (!dup)
+					continue;
+
+				char* tok = strtok(dup, ",");
+
+				int k = 0;
+
+				while (tok != NULL && k < MAX_EXCLUDE)
+				{
+					((char**)entries[i].value_ptr)[k] = tok;
+					tok = strtok(NULL, ",");
+					k++;
+				}
+			}
 
 			return;
 		}
@@ -336,6 +376,20 @@ void ini_write()
 		else if (entries[i].t == CFG_UINT8)
 			fprintf(file, "%s = %d\n", entries[i].name,
 				*(uint8_t*)entries[i].value_ptr);
+
+		else if (entries[i].t == CFG_ARR)
+		{
+			fprintf(file, "%s = ", entries[i].name);
+			for (int j = 0; j < MAX_EXCLUDE; j++)
+			{
+				if (((char**)entries[i].value_ptr)[j] == NULL)
+					break;
+
+				fprintf(file, "%s,", ((char**)entries[i].value_ptr)[j]);
+			}
+
+			fprintf(file, "\n");
+		}
 	}
 
 	fclose(file);

@@ -50,7 +50,7 @@ extern HWINEVENTHOOK hk_win_ev;
 extern HANDLE drag_work_ev;
 extern HANDLE drag_thread_h;
 
-bool compare(HWND hwnd);
+bool compare(HWND hwnd, bool action);
 void override_style(HWND hwnd);
 void adjust_wnd_rect(HWND hwnd,
 	LONG_PTR from_style,

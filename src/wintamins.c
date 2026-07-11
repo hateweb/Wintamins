@@ -42,22 +42,20 @@ HANDLE drag_work_ev;
 HANDLE drag_thread_h;
 bool run_thread = true;
 
-bool compare(HWND hwnd)
+bool compare(HWND hwnd, bool action)
 {
-	static const char* const whitelist[] = {"#32768", "Progman", "WorkerW",
-		"Shell_TrayWnd", "Shell_SecondaryTrayWnd", "Windows.UI.Core.CoreWindow",
-		"EdgeUiInputWndClass", "NotifyIconOverflowWindow", "TaskSwitcherWnd",
-		"TaskSwitcherOverlayWnd", "MultitaskingViewFrame",
-		"XamlExplorerHostIslandWindow"};
-
-	static const int wl_size = sizeof(whitelist) / sizeof(whitelist[0]);
-
 	char class[256];
 	GetClassName(hwnd, class, sizeof(class));
 
-	for (int i = 0; i < wl_size; i++)
-		if (!strcmp(whitelist[i], class))
+	for (int i = 0; i < MAX_EXCLUDE; i++)
+	{
+		char* str = action ? cfg.action_exclude[i] : cfg.titlebar_exclude[i];
+		if (str == NULL)
+			break;
+
+		if (!strcmp(str, class))
 			return true;
+	}
 
 	return false;
 }
@@ -86,7 +84,7 @@ void override_style(HWND hwnd)
 	char class[256];
 	GetClassName(hwnd, class, sizeof(class));
 
-	if (compare(hwnd))
+	if (compare(hwnd, false))
 		return;
 
 	LONG_PTR style_override = original_style;
@@ -613,21 +611,24 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	HWND root_hwnd = GetAncestor(hwnd, GA_ROOT);
 	HWND desktop_hwnd = GetDesktopWindow();
 
-	if (!root_hwnd || root_hwnd == desktop_hwnd || compare(root_hwnd))
+	if (!root_hwnd || root_hwnd == desktop_hwnd || compare(root_hwnd, true))
 		return false;
 
-	HANDLE prop = GetProp(root_hwnd, "original_style");
-	if (prop)
+	if (cfg.exclude_without_titlebar)
 	{
-		LONG original_style = (LONG)(intptr_t)prop;
-		if (!(original_style & WS_CAPTION))
-			return false;
-	}
-	else
-	{
-		LONG_PTR style = GetWindowLongPtr(root_hwnd, GWL_STYLE);
-		if (!(style & WS_CAPTION))
-			return false;
+		HANDLE prop = GetProp(root_hwnd, "original_style");
+		if (prop)
+		{
+			LONG original_style = (LONG)(intptr_t)prop;
+			if (!(original_style & WS_CAPTION))
+				return false;
+		}
+		else
+		{
+			LONG_PTR style = GetWindowLongPtr(root_hwnd, GWL_STYLE);
+			if (!(style & WS_CAPTION))
+				return false;
+		}
 	}
 
 	WINDOWPLACEMENT wp;

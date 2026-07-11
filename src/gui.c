@@ -18,7 +18,7 @@ bool hide_tray = false;
 bool no_updater = false;
 
 tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
-	{"About", NULL, IDD_ABOUT}};
+	{"Exclusions", NULL, IDD_EXCLUSIONS}, {"About", NULL, IDD_ABOUT}};
 const uint8_t max_tabs = sizeof(tabs) / sizeof(tab);
 uint8_t current_tab = 0;
 
@@ -150,7 +150,7 @@ void set_combo_value(HWND tab, int id, int v)
 
 void apply_config()
 {
-	if (tabs[0].hwnd && tabs[1].hwnd)
+	if (tabs[0].hwnd && tabs[1].hwnd && tabs[2].hwnd)
 	{
 		for (int i = 0; i < entries_size; i++)
 		{
@@ -168,6 +168,26 @@ void apply_config()
 			{
 				*(uint8_t*)entry.value_ptr =
 					get_combo_value(*entry.tab, entry.id);
+			}
+
+			else if (entry.t == CFG_ARR)
+			{
+				char buf[1024];
+				GetDlgItemText(*entry.tab, entry.id, buf, sizeof(buf));
+
+				char** arr = (char**)entry.value_ptr;
+
+				for (int j = 0; j < MAX_EXCLUDE; j++)
+					arr[j] = NULL;
+
+				char* tok = strtok(buf, ",");
+				int k = 0;
+				while (tok != NULL && k < MAX_EXCLUDE)
+				{
+					arr[k] = strdup(tok); 
+					tok = strtok(NULL, ",");
+					k++;
+				}
 			}
 		}
 	}
@@ -193,7 +213,7 @@ void apply_config()
 
 void revert_config()
 {
-	if (!tabs[0].hwnd || !tabs[1].hwnd)
+	if (!tabs[0].hwnd || !tabs[1].hwnd || !tabs[2].hwnd)
 		return;
 
 	for (int i = 0; i < entries_size; i++)
@@ -207,6 +227,25 @@ void revert_config()
 
 		else if (entry.t == CFG_UINT8)
 			set_combo_value(*entry.tab, entry.id, *(uint8_t*)entry.value_ptr);
+
+		else if (entry.t == CFG_ARR)
+		{
+			char buf[1024];
+			char** arr = (char**)entry.value_ptr;
+
+			for (int j = 0; j < MAX_EXCLUDE; j++)
+			{
+				if (arr[j] == NULL)
+					break;
+
+				if (j > 0)
+					strcat(buf, ",");
+
+				strcat(buf, arr[j]);
+			}
+
+			SetDlgItemText(*entry.tab, entry.id, buf);
+		}
 	}
 }
 

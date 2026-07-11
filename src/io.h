@@ -22,6 +22,8 @@
 
 #include <windows.h>
 
+#define MAX_EXCLUDE 128
+
 enum
 {
 	STATUS_ERROR,
@@ -46,6 +48,9 @@ typedef struct
 	uint8_t action_m4;
 	uint8_t action_m5;
 	uint8_t action_scr;
+	char* action_exclude[MAX_EXCLUDE];
+	bool exclude_without_titlebar;
+	char* titlebar_exclude[MAX_EXCLUDE];
 } config;
 
 extern config cfg;
@@ -53,7 +58,8 @@ extern config cfg;
 typedef enum
 {
 	CFG_BOOL,
-	CFG_UINT8
+	CFG_UINT8,
+	CFG_ARR
 } config_t;
 
 typedef struct
@@ -65,6 +71,7 @@ typedef struct
 	{
 		bool b;
 		uint8_t u8;
+		const char* s[MAX_EXCLUDE];
 	} def;
 	int id;
 	HWND* tab;
