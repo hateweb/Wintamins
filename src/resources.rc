@@ -31,8 +31,8 @@ IDR_LICENSE LICENSE_DATA "LICENSE"
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "wintamins.manifest"
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     0,1
-PRODUCTVERSION  0,1
+FILEVERSION     0,2
+PRODUCTVERSION  0,2
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 FILEFLAGS       0x0L
 FILEOS          VOS__WINDOWS32
@@ -46,7 +46,7 @@ BEGIN
             VALUE "FileDescription", "Wintamins"
             VALUE "Comments", "For healthy window management."
             VALUE "CompanyName", "hateweb"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "0.2"
             VALUE "InternalName", "wintamins"
             VALUE "LegalCopyright", "(C) hateweb, 2026"
         END
@@ -144,9 +144,9 @@ BEGIN
 	ICON IDI_TRAYDARK, IDC_STATIC, 10, 15, 128, 128, BS_TOP
 	LTEXT "Wintamins", IDC_TITLE, 40, 13, 195, 10
 	LTEXT "for healthy window management", IDC_STATIC, 41, 25, 195, 10
-	LTEXT "Version 0.1", IDC_STATIC, 10, 42, 195, 10
+	LTEXT "Version 0.2", IDC_STATIC, 10, 42, 195, 10
 	CONTROL "<a href=""https://github.com/hateweb/Wintamins"">GitHub</a>", IDC_LINK, "SysLink", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 51, 100, 10
-	CONTROL "<a href=""open_txt"">Licensed under GNU GPLv2</a>", IDC_LICENSE, "SysLink", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 120, 51, 120, 10
+	CONTROL "<a href=""open_txt"">Licensed under GNU GPLv2</a>", IDC_LICENSE, "SysLink", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 120, 51, 92, 10
 	GROUPBOX "About", IDC_GROUP_ABOUT, 3, 1, 212, 64, BS_GROUPBOX
 END
 

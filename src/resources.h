@@ -22,7 +22,7 @@
 #define RESOURCE_H
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 1
+#define VERSION_MINOR 2
 
 #if defined(__x86_64__) || defined(_M_X64)
 #define BUILD_ARCH 64
