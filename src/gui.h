@@ -15,6 +15,8 @@ extern bool should_elevate;
 extern bool hide_tray;
 extern bool no_updater;
 
+extern bool start_capture;
+
 extern tab tabs[];
 extern const uint8_t max_tabs;
 extern uint8_t current_tab;

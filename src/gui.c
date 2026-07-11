@@ -17,6 +17,8 @@ bool should_elevate = false;
 bool hide_tray = false;
 bool no_updater = false;
 
+bool start_capture = false;
+
 tab tabs[] = {{"General", NULL, IDD_GENERAL}, {"Mouse", NULL, IDD_MOUSE},
 	{"Exclusions", NULL, IDD_EXCLUSIONS}, {"About", NULL, IDD_ABOUT}};
 const uint8_t max_tabs = sizeof(tabs) / sizeof(tab);
@@ -117,6 +119,17 @@ INT_PTR CALLBACK child_dlg_proc(HWND hwnd,
 					EnableWindow(autostartadmin,
 						IsDlgButtonChecked(tabs[0].hwnd, IDC_AUTOSTART) ==
 							BST_CHECKED);
+				return TRUE;
+			}
+
+			if (LOWORD(wparam) == IDB_CAPTURE && HIWORD(wparam) == BN_CLICKED)
+			{
+				start_capture = true;
+				mod_active = false;
+				HWND capture_btn = GetDlgItem(tabs[2].hwnd, IDB_CAPTURE);
+				EnableWindow(capture_btn, FALSE);
+				destroy_keyboard_hk();
+				init_mouse_hk();
 				return TRUE;
 			}
 			break;

@@ -32,11 +32,10 @@ enum
 	CORNER_BOTTOMRIGHT = 8,
 };
 
+extern bool mod_active;
+
 extern const char name[];
 extern const char contitle[];
-
-extern bool console_state;
-extern HWND console_wnd;
 
 extern HCURSOR cursor_drag;
 extern HCURSOR cursor_resize_tl_br;

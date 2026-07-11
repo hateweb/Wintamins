@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include "wintamins.h"
+#include "resources.h"
 #include "io.h"
 #include "gui.h"
 
@@ -611,7 +612,27 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 	HWND root_hwnd = GetAncestor(hwnd, GA_ROOT);
 	HWND desktop_hwnd = GetDesktopWindow();
 
-	if (!root_hwnd || root_hwnd == desktop_hwnd || compare(root_hwnd, true))
+	if (!root_hwnd || root_hwnd == desktop_hwnd)
+		return false;
+	
+	if (start_capture)
+	{
+		char class[256];
+		GetClassName(root_hwnd, class, sizeof(class));
+		SetDlgItemText(tabs[2].hwnd, IDC_CAPTURE, class);
+
+		HWND capture_btn = GetDlgItem(tabs[2].hwnd, IDB_CAPTURE);
+		EnableWindow(capture_btn, TRUE);
+
+		start_capture = false;
+
+		init_keyboard_hk();
+		destroy_mouse_hk();
+
+		return false;
+	}
+
+	if (compare(root_hwnd, true))
 		return false;
 
 	if (cfg.exclude_without_titlebar)
@@ -751,7 +772,7 @@ LRESULT CALLBACK mouse_proc(int ncode, WPARAM wparam, LPARAM lparam)
 	if (!mouse_struct)
 		return CallNextHookEx(hk_mouse, ncode, wparam, lparam);
 
-	if (any_key_down(wparam) && mod_active &&
+	if (any_key_down(wparam) && (start_capture || mod_active) &&
 		process_clicks(&wparam, mouse_struct))
 		return 1;
 
@@ -823,7 +844,7 @@ void destroy_mouse_hk()
 
 LRESULT CALLBACK keyboard_proc(int ncode, WPARAM wparam, LPARAM lparam)
 {
-	if (ncode == HC_ACTION)
+	if (ncode == HC_ACTION && !start_capture)
 	{
 		KBDLLHOOKSTRUCT* pKey = (KBDLLHOOKSTRUCT*)lparam;
 
