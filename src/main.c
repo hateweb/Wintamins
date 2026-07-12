@@ -100,7 +100,8 @@ int WINAPI WinMain(HINSTANCE hinstance,
 	}
 
 	unsigned thread_id;
-	drag_thread_h = (HANDLE)_beginthreadex(NULL, 0, &drag_thread, NULL, 0, &thread_id);
+	drag_thread_h =
+		(HANDLE)_beginthreadex(NULL, 0, &drag_thread, NULL, 0, &thread_id);
 
 	if (drag_thread_h == 0)
 	{
@@ -108,7 +109,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		goodbye();
 		return EXIT_FAILURE;
 	}
-	
+
 	init_keyboard_hk();
 
 	INITCOMMONCONTROLSEX iccx;

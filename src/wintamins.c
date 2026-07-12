@@ -64,8 +64,8 @@ bool compare(HWND hwnd, bool action)
 
 void override_style(HWND hwnd)
 {
-	if (!hwnd || !IsWindow(hwnd) ||
-		!IsWindowVisible(hwnd) || GetAncestor(hwnd, GA_ROOT) != hwnd)
+	if (!hwnd || !IsWindow(hwnd) || !IsWindowVisible(hwnd) ||
+		GetAncestor(hwnd, GA_ROOT) != hwnd)
 		return;
 
 	// causes run dialog to be ignored
@@ -555,12 +555,14 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 		info.cbSize = sizeof(MONITORINFO);
 
 		GetMonitorInfo(mon, &info);
-		
+
 		int w = window_start.right - window_start.left;
 		int h = window_start.bottom - window_start.top;
-		
-		int x = info.rcWork.left + (info.rcWork.right - info.rcWork.left - w) / 2;
-		int y = info.rcWork.top + (info.rcWork.bottom - info.rcWork.top - h) / 2;
+
+		int x =
+			info.rcWork.left + (info.rcWork.right - info.rcWork.left - w) / 2;
+		int y =
+			info.rcWork.top + (info.rcWork.bottom - info.rcWork.top - h) / 2;
 		SetWindowPos(target_wnd, NULL, x, y, 0, 0,
 			SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 	}
@@ -577,7 +579,8 @@ void click_logic(WINDOWPLACEMENT* wp, int option)
 		LONG_PTR topmost = (GetWindowLongPtr(target_wnd, GWL_EXSTYLE) &
 							   WS_EX_TOPMOST) == WS_EX_TOPMOST;
 		SetWindowPos(target_wnd, topmost ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0,
-			0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
+			0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 	}
 
 	else if (option == ACTION_CLOSE)
@@ -615,7 +618,7 @@ bool process_clicks(const WPARAM* p_wparam, MSLLHOOKSTRUCT* p_mouse_struct)
 
 	if (!root_hwnd || root_hwnd == desktop_hwnd)
 		return false;
-	
+
 	if (start_capture)
 	{
 		char class[256];

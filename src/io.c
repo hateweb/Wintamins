@@ -169,12 +169,15 @@ bool update_itself()
 	HRESULT move_status = MoveFile(path, path_old);
 	if (move_status == 0)
 	{
-		log_msg(STATUS_WARN, "failed to move the executable during an update", path);
+		log_msg(STATUS_WARN, "failed to move the executable during an update",
+			path);
 		return false;
 	}
 
 	char url[128];
-	snprintf(url, sizeof(url), "https://github.com/hateweb/Wintamins/releases/latest/download/Wintamins%d.exe", BUILD_ARCH);
+	snprintf(url, sizeof(url),
+		"https://github.com/hateweb/Wintamins/releases/latest/download/Wintamins%d.exe",
+		BUILD_ARCH);
 
 	HRESULT result = URLDownloadToFile(NULL, url, path, 0, NULL);
 
@@ -289,7 +292,8 @@ void assign_config(const char* key, const char* value)
 				*(bool*)entries[i].value_ptr = (strcasecmp(value, "true") == 0);
 
 			else if (entries[i].t == CFG_UINT8)
-				*(uint8_t*)entries[i].value_ptr = (uint8_t)strtol(value, NULL, 10);
+				*(uint8_t*)entries[i].value_ptr =
+					(uint8_t)strtol(value, NULL, 10);
 
 			else if (entries[i].t == CFG_ARR)
 			{

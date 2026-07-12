@@ -174,10 +174,9 @@ void apply_config()
 			if (entry.t == CFG_BOOL)
 			{
 				*(bool*)entry.value_ptr =
-					IsDlgButtonChecked(*entry.tab, entry.id) ==
-					BST_CHECKED;
+					IsDlgButtonChecked(*entry.tab, entry.id) == BST_CHECKED;
 			}
-			
+
 			else if (entry.t == CFG_UINT8)
 			{
 				*(uint8_t*)entry.value_ptr =
@@ -198,7 +197,7 @@ void apply_config()
 				int k = 0;
 				while (tok != NULL && k < MAX_EXCLUDE)
 				{
-					arr[k] = strdup(tok); 
+					arr[k] = strdup(tok);
 					tok = strtok(NULL, ",");
 					k++;
 				}
@@ -434,14 +433,16 @@ INT_PTR CALLBACK dlg_proc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 							item, CB_ADDSTRING, 0, (LPARAM)act_names[j]);
 			}
 
-			static const char* scr_act_names[] = {"Do nothing", "Volume control"};
+			static const char* scr_act_names[] = {
+				"Do nothing", "Volume control"};
 			static const uint8_t scr_act_names_size =
 				sizeof(scr_act_names) / sizeof(scr_act_names[0]);
 
 			HWND scroll = GetDlgItem(tabs[1].hwnd, IDC_SCR);
 			if (scroll)
 				for (int i = 0; i < scr_act_names_size; i++)
-					SendMessage(scroll, CB_ADDSTRING, 0, (LPARAM)scr_act_names[i]);
+					SendMessage(
+						scroll, CB_ADDSTRING, 0, (LPARAM)scr_act_names[i]);
 
 			revert_config();
 			return TRUE;
